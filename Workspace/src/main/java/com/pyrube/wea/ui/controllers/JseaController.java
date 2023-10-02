@@ -28,6 +28,10 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -46,6 +50,7 @@ import com.pyrube.one.app.security.SecurityManagerFactory;
 import com.pyrube.one.app.user.UserHolder;
 import com.pyrube.one.util.Currency;
 import com.pyrube.one.util.Option;
+import com.pyrube.wea.WeaConstants;
 import com.pyrube.wea.context.WebContextHolder;
 
 /**
@@ -147,9 +152,16 @@ public class JseaController {
 		Note note = SecurityManagerFactory.getSecurityManager().leaveNote(model);
 		return note;
 	}
-	
+
 	@RequestMapping("comments")
 	public String comments() {
 		return "memo.comments_box";
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "upload/progress")
+	public String getProgress(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		return (String) session.getAttribute(WeaConstants.SESSION_ATTRNAME_UPLOAD_PROGRESS);
 	}
 }
