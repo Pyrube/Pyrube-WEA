@@ -50,9 +50,15 @@ public interface WeaConstants {
 	public static final String REQUEST_ATTRNAME_MESSAGES = "WEA.KEY_REQUESTATTRNAME_MESSAGES";
 	
 	/**
-	 * 
+	 * custom response headers
 	 */
-	public static final String RESPONSE_HEADER_MESSAGE_LEVEL = "wea-message-level";
+	public static final String RESPONSE_HEADER_MESSAGE_CONTAINER = "Message-Container";
+	public static final String RESPONSE_HEADER_MESSAGE_LEVEL = "Message-Level";
+	
+	/**
+	 * The key for session attribute name of upload progress
+	 */
+	public static final String SESSION_ATTRNAME_UPLOAD_PROGRESS = "WEA.KEY_SESSIONATTRNAME_UPLOADPROGRESS";
 	
 	/**
 	 * The key for session attribute name of current User
