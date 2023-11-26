@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
@@ -46,6 +47,8 @@ import com.pyrube.one.app.logging.Logger;
 import com.pyrube.one.app.menu.MenuItem;
 import com.pyrube.one.app.user.User;
 import com.pyrube.one.lang.Strings;
+import com.pyrube.wea.WeaConfig;
+import com.pyrube.wea.WeaConfig.Cookie;
 import com.pyrube.wea.WeaConstants;
 import com.pyrube.wea.context.WebContext;
 import com.pyrube.wea.context.WebContextHolder;
@@ -213,14 +216,189 @@ public class Weas {
 			session.removeAttribute(WeaConstants.SESSION_ATTRNAME_LOCLAE);
 		}
 	}
+
+	/**
+	 * returns the system-default theme
+	 * @return String
+	 */
+	public static String getDefaultTheme() {
+		return(WeaConfig.getWeaConfig().getDefaultThemeName());
+	}
+
+	/**
+	 * returns the application-supported themes
+	 * @return String[]
+	 */
+	public static String[] getAppThemes() {
+		return(WeaConfig.getWeaConfig().getThemeNames());
+	}
+
+	/**
+	 * checks whether the given theme is application-supported
+	 * @param theme String
+	 * @return boolean
+	 */
+	public static boolean isThemeSupported(String theme) {
+		for (String _theme : getAppThemes()) {
+			if (_theme.equals(theme)) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Hold the given theme as session attribute.
+	 * @param request current HTTP request
+	 * @param locale the locale
+	 */
+	public static void holdTheme(HttpServletRequest request, String theme) {
+		request.getSession().setAttribute(WeaConstants.SESSION_ATTRNAME_THEME, theme);
+	}
+	/**
+	 * Return the theme from the session.
+	 * Returns null if there is no session or if the session has no such attribute.
+	 * Does not create a new session if none has existed before!
+	 * @param request current HTTP request
+	 * @return String. null if it is not found
+	 */
+	public static String findTheme(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		return (session != null ? (String) session.getAttribute(WeaConstants.SESSION_ATTRNAME_THEME) : null);
+	}
 	
 	/**
-	 * Returns the sub-menu items user has access permission of a given id
-	 * @param itemId
+	 * Removes theme from the session, if a session existed at all.
+	 * Does not create a new session if not necessary!
+	 * @param request current HTTP request
+	 */
+	public static void removeTheme(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			session.removeAttribute(WeaConstants.SESSION_ATTRNAME_THEME);
+		}
+	}
+
+	/**
+	 * checks whether theme cookie is enabled. if true, the current theme 
+	 * should synchronize to cookie
+	 * @return Boolean
+	 */
+	public static boolean isThemeCookieEnabled() {
+		return(WeaConfig.getWeaConfig().isThemeCookieEnabled());
+	}
+
+	/**
+	 * returns the theme name from cookie. it is null, if no cookie
+	 * @param request HttpServletRequest
+	 * @return String
+	 */
+	public static String getThemeCookieValue(HttpServletRequest request) {
+		Cookie cookie = WeaConfig.getWeaConfig().getThemeCookie();
+		cookie.setServerHost(request.getServerName());
+		javax.servlet.http.Cookie httpCookie = findCookie(request, cookie);
+		if (httpCookie == null) return null;
+		return httpCookie.getValue();
+	}
+
+	/**
+	 * adds a cookie with the theme name to the response
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param themeName String
+	 */
+	public static void setThemeCookie(HttpServletRequest request, HttpServletResponse response, String themeName) {
+		Cookie cookie = WeaConfig.getWeaConfig().getThemeCookie();
+		cookie.setValue(themeName);
+		cookie.setServerHost(request.getServerName());
+		addCookie(response, cookie);
+	}
+
+	/**
+	 * removes the cookie of theme from the response
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 */
+	public static void removeThemeCookie(HttpServletRequest request, HttpServletResponse response) {
+		Cookie cookie = WeaConfig.getWeaConfig().getThemeCookie();
+		cookie.setServerHost(request.getServerName());
+		removeCookie(response, cookie);
+	}
+
+	/**
+	 * returns the result whether cookie is secure. it is for global configuration
+	 * @return Boolean
+	 */
+	public static boolean isCookieSecure() {
+		return(WeaConfig.getWeaConfig().isCookieSecure());
+	}
+
+	/**
+	 * returns the result whether cookie is HTTP only. it is for global configuration
+	 * @return Boolean
+	 */
+	public static boolean isCookieHttpOnly() {
+		return(WeaConfig.getWeaConfig().isCookieHttpOnly());
+	}
+
+	/**
+	 * retrieves the first HTTP cookie with the given WEA cookie. Note that multiple
+	 * cookies can have the same name but different paths or domains.
+	 * @param request HttpServletRequest
+	 * @param cookie WEA Cookie
+	 * @return HTTP Cookie
+	 */
+	public static javax.servlet.http.Cookie findCookie(HttpServletRequest request, Cookie cookie) {
+		javax.servlet.http.Cookie[] httpCookies = request.getCookies();
+		if (httpCookies != null) {
+			for (javax.servlet.http.Cookie httpCookie : httpCookies) {
+				if (cookie.getName().equals(httpCookie.getName())) {
+					return httpCookie;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * adds a cookie with the given WEA cookie to the response
+	 * @param response HttpServletResponse
+	 * @param cookie WEA Cookie
+	 */
+	public static void addCookie(HttpServletResponse response, Cookie cookie) {
+		javax.servlet.http.Cookie httpCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+		String domain = cookie.resolveDomain();
+		if (domain != null) httpCookie.setDomain(domain);
+		httpCookie.setPath(cookie.getPath());
+		httpCookie.setMaxAge(cookie.getMaxAge());
+		if (isCookieSecure()) httpCookie.setSecure(true);
+		if (isCookieHttpOnly()) httpCookie.setHttpOnly(true);
+		response.addCookie(httpCookie);
+	}
+
+	/**
+	 * removes the cookie from the response
+	 * @param response HttpServletResponse
+	 * @param cookie WEA Cookie
+	 */
+	public static void removeCookie(HttpServletResponse response, Cookie cookie) {
+		javax.servlet.http.Cookie httpCookie = new javax.servlet.http.Cookie(cookie.getName(), Strings.EMPTY);
+		String domain = cookie.resolveDomain();
+		if (domain != null) httpCookie.setDomain(domain);
+		httpCookie.setPath(cookie.getPath());
+		httpCookie.setMaxAge(0);
+		if (isCookieSecure()) httpCookie.setSecure(true);
+		if (isCookieHttpOnly()) httpCookie.setHttpOnly(true);
+		response.addCookie(httpCookie);
+		if (logger.isDebugEnabled()) logger.debug("Cookie '" + cookie.getName() + "' has been removed");
+	}
+	
+	/**
+	 * Returns the sub-menu items user has access permission of the given root and a given id
+	 * @param ROOT MenuItem
+	 * @param itemId String
 	 * @return
 	 */
-	public static List<MenuItem> mySubmenuItems(String itemId) {
-		MenuItem item = MenuItem.ROOT.find(itemId);
+	public static List<MenuItem> mySubmenuItems(MenuItem ROOT, String itemId) {
+		MenuItem item = ROOT.find(itemId);
 		List<MenuItem> subs = null;
 		List<MenuItem> myItems = null;
 		if (item != null && (subs = item.getSubs()) != null) {
