@@ -43,6 +43,7 @@ public class LiteUserDetailsService extends WeaUserDetailsService {
 		try {
 			if (logger.isDebugEnabled()) logger.debug("Starting to find light user details.");
 			User user = getSecurityManager().findUser(username);
+			if (user == null) throw new UsernameNotFoundException("User is not found.");
 			
 			WeaUserDetails userDetails = new WeaUserDetails(user);
 			if (logger.isDebugEnabled()) logger.debug("Ending to find user: " + userDetails.toString());

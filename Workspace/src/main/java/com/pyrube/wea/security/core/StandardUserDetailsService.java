@@ -45,7 +45,8 @@ public class StandardUserDetailsService extends WeaUserDetailsService {
 		try {
 			if (logger.isDebugEnabled()) logger.debug("Starting to find standard user details.");
 			User user = getSecurityManager().findUser(username);
-			if (user != null && user.is(SecurityStatus.ENABLED)) {
+			if (user == null) throw new UsernameNotFoundException("User is not found.");
+			if (user.is(SecurityStatus.ENABLED)) {
 				user.setRights(getSecurityManager().findUserRights(username));
 			}
 			
