@@ -25,7 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.ThemeResolver;
 
+import com.pyrube.one.app.context.AppContextManager;
 import com.pyrube.one.app.i18n.I18nManager;
 import com.pyrube.one.app.user.User;
 import com.pyrube.wea.WeaConfig;
@@ -60,6 +62,11 @@ public class WebContext {
 	 * time zone
 	 */
 	private TimeZone timezone;
+
+	/**
+	 * theme
+	 */
+	private String theme;
 
 	/**
 	 * whether default HTML-escaping is enabled
@@ -98,6 +105,17 @@ public class WebContext {
 			timezone = calendar.getTimeZone();
 		}
 		this.timezone = timezone;
+
+		// Resolve a theme
+		String themeName = null;
+		ThemeResolver themeResolver = (ThemeResolver) AppContextManager.findBean("themeResolver");
+		if (themeResolver != null) {
+			themeName = themeResolver.resolveThemeName(request);
+		}
+		if (themeName == null) {
+			themeName = Weas.getDefaultTheme();
+		}
+		this.theme = themeName;
 		
 		// Determine default HTML escaping configuration from the "defaultHtmlEscaping" in 
 		// pyrube-config.xml
@@ -135,6 +153,13 @@ public class WebContext {
 	}
 
 	/**
+	 * @return the theme
+	 */
+	public String getTheme() {
+		return theme;
+	}
+
+	/**
 	 * Whether default HTML-escaping is enabled
 	 * @return false if no default given
 	 */
@@ -157,5 +182,6 @@ public class WebContext {
 		response = null;
 		locale = null;
 		timezone = null;
+		theme = null;
 	}
 }
