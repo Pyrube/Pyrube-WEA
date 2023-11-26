@@ -22,6 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -30,13 +31,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ThemeResolver;
 
 import com.pyrube.one.app.AppException;
 import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.logging.Logger;
 import com.pyrube.one.app.menu.MenuItem;
 import com.pyrube.one.app.user.User;
-import com.pyrube.one.app.user.UserHolder;
 import com.pyrube.one.lang.Strings;
 import com.pyrube.wea.security.core.WeaUserDetails;
 import com.pyrube.wea.util.Weas;
@@ -61,29 +62,37 @@ public class ProfileController extends WeaController {
 	 */
 	private static Logger logger = Logger.getInstance(ProfileController.class.getName());
 
+	@Autowired
+	private ThemeResolver themeResolver;
+
 	@RequestMapping("profile")
 	public String showUserProfile(Model model) {
-		User profile = UserHolder.getUser();
-		model.addAttribute("profile", profile);
+		model.addAttribute("profile", Apps.the.user());
 		return "user.user_profile";
 	}
 
 	@ResponseBody
 	@RequestMapping("menu")
 	public List<MenuItem> myLevel1MenuItems() {
-		return Weas.mySubmenuItems(MenuItem.ROOT.getId());
+		return Weas.mySubmenuItems(MenuItem.MENU_ROOT, MenuItem.MENU_ROOT.getId());
 	}
 
 	@ResponseBody
 	@RequestMapping("menu/children/{id}")
 	public List<MenuItem> mySubmenuItems(@PathVariable String id) {
-		return Weas.mySubmenuItems(id);
+		return Weas.mySubmenuItems(MenuItem.MENU_ROOT, id);
 	}
 
 	@ResponseBody
 	@RequestMapping("menu/parents")
 	public List<MenuItem> findMenuPath(@RequestParam String page) {
 		return null;
+	}
+
+	@ResponseBody
+	@RequestMapping("nav")
+	public List<MenuItem> myLevel1NavItems() {
+		return Weas.mySubmenuItems(MenuItem.NAV_ROOT, MenuItem.NAV_ROOT.getId());
 	}
 
 	@ResponseBody
@@ -114,7 +123,7 @@ public class ProfileController extends WeaController {
 		}
 		Apps.a.locale locale = Apps.a.locale.of(localeCode);
 		if (!locale.is.supported()) {
-			if (logger.isDebugEnabled()) logger.debug("Application does not support locale " + localeCode);
+			if (logger.isDebugEnabled()) logger.debug("Application does not support locale '" + localeCode + "'");
 			return false;
 		}
 		Weas.holdLocale(request, locale.value());
@@ -125,12 +134,49 @@ public class ProfileController extends WeaController {
 			if (principal != null && principal instanceof WeaUserDetails) {
 				User user = ((WeaUserDetails)principal).getUser();
 				if (user != null) user.setLocale(locale.value());
-				if (logger.isDebugEnabled()) logger.debug("Hold locale (" + localeCode + ") into security context.");
+				if (logger.isDebugEnabled()) logger.debug("Hold locale (" + localeCode + ") into security context");
 			} else {
 				logger.warn("Principal is null or not an instance of WeaUserDetails either.");
 			}
 		}
 		return true;
+	}
+
+	@ResponseBody
+	@RequestMapping("themes")
+	public List<MenuItem> findThemes() throws AppException {
+		String[] themeNames = Weas.getAppThemes();
+		List<MenuItem> profileItems = new ArrayList<MenuItem>();
+		for (String themeName :  themeNames) {
+			MenuItem item = new MenuItem(themeName, "theme." + themeName);
+			item.setIcon(themeName);
+			profileItems.add(item);
+		}
+		return profileItems;
+	}
+
+	/**
+	 * changes to the specified theme
+	 * @param themeName String
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @return boolean
+	 */
+	@ResponseBody
+	@RequestMapping(value="theme/{themeName}")
+	public boolean changeTheme(@PathVariable String themeName, HttpServletRequest request, HttpServletResponse response) {
+		if (Strings.isEmpty(themeName)) {
+			themeName = Weas.getDefaultTheme();
+		}
+		boolean supported = true;
+		if (!Weas.isThemeSupported(themeName)) {
+			logger.warn("Application does not support theme '" + themeName + "'");
+			themeName = Weas.getDefaultTheme();
+			logger.warn("Application will use the default theme '" + themeName + "'");
+			supported = false;
+		}
+		themeResolver.setThemeName(request, response, themeName);
+		return supported;
 	}
 
 }

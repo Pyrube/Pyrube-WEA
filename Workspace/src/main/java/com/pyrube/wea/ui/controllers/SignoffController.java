@@ -24,9 +24,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.logging.Logger;
+import com.pyrube.one.app.user.Authen;
 import com.pyrube.one.lang.Strings;
-import com.pyrube.wea.ui.model.Authen;
 
 /**
  * Sign-off controller
@@ -73,7 +74,7 @@ public class SignoffController extends WeaController {
 		}
 		
 		if (logger.isDebugEnabled()) logger.debug("Logged out");
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return reason;
 	}
 	

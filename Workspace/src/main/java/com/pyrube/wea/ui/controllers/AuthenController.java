@@ -42,12 +42,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.pyrube.one.app.AppMessage;
 import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.logging.Logger;
+import com.pyrube.one.app.user.Authen;
 import com.pyrube.wea.WeaConfig;
 import com.pyrube.wea.WeaConfig.Captcha;
 import com.pyrube.wea.WeaConstants;
 import com.pyrube.wea.security.core.BadCaptchaException;
 import com.pyrube.wea.security.core.CredentialsInitializedException;
-import com.pyrube.wea.ui.model.Authen;
 
 /**
  * Authentication controller
@@ -63,7 +63,7 @@ public class AuthenController extends WeaController {
 	/**
 	 * logger
 	 */
-	private static Logger logger = Logger.getInstance(AuthenController.class.getName());
+	private static Logger logger = Apps.a.logger.named(AuthenController.class.getName());
 	
 	@RequestMapping(value = "")
 	public String authen() {
@@ -72,7 +72,7 @@ public class AuthenController extends WeaController {
 	
 	@RequestMapping(value = "forgetPassword")
 	public String initForgetPassword(Model model) {
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "authen.forget_password";
 	}
 	
@@ -92,8 +92,9 @@ public class AuthenController extends WeaController {
 			message = Apps.a.message.with.info("message.info.authen.password-initialized");
 		}
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, Apps.some.messages(message));
-		Authen authen = new Authen();
-		authen.setUsername(username);
+		Authen authen 
+			= Apps.a.data(Authen.class)
+					.username(username);
 		model.addAttribute("authen", authen);
 		return "authen.force_change_password";
 	}
@@ -119,8 +120,9 @@ public class AuthenController extends WeaController {
 			code = "message.error.authen.password-unchangeable";
 		}
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, Apps.some.messages(Apps.a.message.with.error(code)));
-		Authen authen = new Authen();
-		authen.setUsername(username);
+		Authen authen 
+			= Apps.a.data(Authen.class)
+					.username(username);
 		model.addAttribute("authen", authen);
 		return "authen.force_change_password";
 	}

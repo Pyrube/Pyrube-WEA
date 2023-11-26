@@ -47,7 +47,6 @@ import com.pyrube.one.app.inquiry.SearchCriteria;
 import com.pyrube.one.app.logging.Logger;
 import com.pyrube.one.app.memo.Note;
 import com.pyrube.one.app.security.SecurityManagerFactory;
-import com.pyrube.one.app.user.UserHolder;
 import com.pyrube.one.util.Currency;
 import com.pyrube.one.util.Option;
 import com.pyrube.wea.WeaConstants;
@@ -124,13 +123,13 @@ public class JseaController {
 	@ResponseBody
 	@RequestMapping("holiday/{year}")
 	public List<Date> holidaysIn(@PathVariable("year") int year) {
-		String countryCode = UserHolder.getUser().getCountry();
+		String countryCode = Apps.the.user.country();
 		List<Date> holidays = SecurityManagerFactory.getSecurityManager().findHolidays(countryCode, year);
 		return holidays;
 	}
 
-	@RequestMapping("notes")
-	public String openNotesPad(@ModelAttribute Note note, Model model) {
+	@RequestMapping("noter")
+	public String openNoter(@ModelAttribute Note note, Model model) {
 		model.addAttribute("note", note);
 		return "memo.notes_pad";
 	}

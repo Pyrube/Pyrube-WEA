@@ -18,37 +18,21 @@ package com.pyrube.wea.ui.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.pyrube.one.app.logging.Logger;
 
 /**
- * Miscellanies controller
+ * Miscellaneous controller
  * 
  * @author Aranjuez
  * @version Dec 01, 2009
  * @since Pyrube-WEA 1.0
  */
 @Controller
-@RequestMapping("")
+@RequestMapping("misc")
 public class MiscController {
 	
-	/**
-	 * logger
-	 */
-	private static Logger logger = Logger.getInstance(MiscController.class.getName());
-	
-	@RequestMapping("blank")
-	public String main(@RequestParam(name = "target", required = false) String target) {
-		String view = "main";
-		// get the main url. if it exists, then redirect to the url, otherwise go to the default.
-		String mainUrl = null;
-		if (target != null) {
-			mainUrl = target;
-		} 
-		if (mainUrl != null) view = "redirect:" + mainUrl;
-		if (logger.isDebugEnabled()) logger.debug("The main page will be " + view);
-		return view;
+	@RequestMapping("main")
+	public String main() {
+		return "main";
 	}
 
 }

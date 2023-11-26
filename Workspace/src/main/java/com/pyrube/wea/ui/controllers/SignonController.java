@@ -34,11 +34,11 @@ import com.pyrube.one.app.AppMessage;
 import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.logging.Logger;
 import com.pyrube.one.app.security.AppPolicy;
+import com.pyrube.one.app.user.Authen;
 import com.pyrube.one.app.user.User;
 import com.pyrube.wea.WeaConstants;
 import com.pyrube.wea.security.core.BadCaptchaException;
 import com.pyrube.wea.security.core.TooManyAttemptsException;
-import com.pyrube.wea.ui.model.Authen;
 
 /**
  * Sign-on controller
@@ -54,7 +54,7 @@ public class SignonController extends WeaController {
 	/**
 	 * logger
 	 */
-	private static Logger logger = Logger.getInstance(SignonController.class.getName());
+	private static Logger logger = Apps.a.logger.named(SignonController.class.getName());
 	
 	@RequestMapping(value = "")
 	public String login(Model model) {
@@ -62,7 +62,7 @@ public class SignonController extends WeaController {
 			if (!User.GUEST.getName().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
 				return("redirect:/acct/home");
 		}
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "signon";
 	}
 	
@@ -105,7 +105,7 @@ public class SignonController extends WeaController {
 		}
 		logger.warn("Failed to sign-on due to " + ae.getMessage());
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, messages);
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "signon";
 	}
 	

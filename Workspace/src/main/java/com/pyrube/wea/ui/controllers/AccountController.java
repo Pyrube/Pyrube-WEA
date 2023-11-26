@@ -26,12 +26,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.pyrube.one.app.AppMessage;
+import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.logging.Logger;
-import com.pyrube.one.app.user.User;
-import com.pyrube.one.app.user.UserHolder;
+import com.pyrube.one.app.user.Authen;
 import com.pyrube.wea.WeaConstants;
 import com.pyrube.wea.security.core.BadCaptchaException;
-import com.pyrube.wea.ui.model.Authen;
 
 /**
  * User account controller
@@ -51,14 +50,13 @@ public class AccountController extends WeaController {
 	
 	@RequestMapping("home")
 	public String goHome(Model model) {
-		User user = UserHolder.getUser();
-		model.addAttribute("user", user);
+		model.addAttribute("user", Apps.the.user());
 		return "acct.home";
 	}
 
 	@RequestMapping(value = "changePassword")
 	public String initChangePassword(Model model) {
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_password";
 	}
 	
@@ -66,7 +64,7 @@ public class AccountController extends WeaController {
 	public String successChangePassword(Model model, HttpServletRequest request) {
 		AppMessage appMessage = AppMessage.success("message.success.password-modification");
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, AppMessage.arrayOf(appMessage));
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_password";
 	}
 	
@@ -83,13 +81,13 @@ public class AccountController extends WeaController {
 			code = "message.error.authen.password-unchangeable";
 		}
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, AppMessage.arrayOf(AppMessage.error(code)));
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_password";
 	}
 
 	@RequestMapping(value = "changeMobile")
 	public String initChangeMobile(Model model) {
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_mobile";
 	}
 	
@@ -97,7 +95,7 @@ public class AccountController extends WeaController {
 	public String successChangeMobile(Model model, HttpServletRequest request) {
 		AppMessage appMessage = AppMessage.success("message.success.mobile-modification");
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, AppMessage.arrayOf(appMessage));
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_mobile";
 	}
 	
@@ -114,13 +112,13 @@ public class AccountController extends WeaController {
 			code = "message.error.authen.mobile-unchangeable";
 		}
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, AppMessage.arrayOf(AppMessage.error(code)));
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_mobile";
 	}
 
 	@RequestMapping(value = "changeEmail")
 	public String initChangeEmail(Model model) {
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_email";
 	}
 	
@@ -128,7 +126,7 @@ public class AccountController extends WeaController {
 	public String successChangeEmail(Model model, HttpServletRequest request) {
 		AppMessage appMessage = AppMessage.success("message.success.email-modification");
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, AppMessage.arrayOf(appMessage));
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_email";
 	}
 	
@@ -145,7 +143,7 @@ public class AccountController extends WeaController {
 			code = "message.error.authen.email-unchangeable";
 		}
 		model.addAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES, AppMessage.arrayOf(AppMessage.error(code)));
-		model.addAttribute("authen", new Authen());
+		model.addAttribute("authen", Apps.a.data(Authen.class));
 		return "acct.change_email";
 	}
 
