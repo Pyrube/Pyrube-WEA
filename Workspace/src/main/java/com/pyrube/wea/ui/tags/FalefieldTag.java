@@ -400,7 +400,7 @@ public class FalefieldTag extends TextfieldTag implements OptionAware {
 		Object items = getItems();
 		if (items == null) jsob.appendJseaOption("autoincrement", Boolean.TRUE.booleanValue());
 		if (items instanceof String) {
-			jsob.appendJseaOption("dragnextItems", items, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+			jsob.appendJseaOption("dragnextItems", items, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		}
 	}
 

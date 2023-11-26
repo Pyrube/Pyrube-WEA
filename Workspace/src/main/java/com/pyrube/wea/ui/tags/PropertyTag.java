@@ -165,7 +165,7 @@ public abstract class PropertyTag extends JseaElementSupportTag {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_TYPE, getType())
 			.appendJseaOption(TagConstants.JSEA_OPTION_I18N_PREFIX, getI18nPrefix())
-			.appendJseaOption(TagConstants.JSAF_OPTION_STYLESHEET, getStylesheet());
+			.appendJseaOption(TagConstants.JSEA_OPTION_STYLESHEET, getStylesheet());
 		appendExtraOptions(jsob);
 		return jsob.toString();
 	}

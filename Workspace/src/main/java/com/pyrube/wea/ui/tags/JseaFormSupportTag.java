@@ -69,9 +69,23 @@ public abstract class JseaFormSupportTag extends FormTag {
 
 	private String mode;
 
-	private String script;
+	/**
+	 * more operations in the nested form
+	 */
+	private String operations;
+
+	/**
+	 * more actions (not default actions)
+	 */
+	private String actions;
+
+	private boolean nested;
+
+	private boolean metaless;
 	
 	private boolean backable = false;
+
+	private String script;
 
 	/**
 	 * @return the formType
@@ -186,17 +200,59 @@ public abstract class JseaFormSupportTag extends FormTag {
 	}
 
 	/**
-	 * @return the script
+	 * @return the operations
 	 */
-	public String getScript() {
-		return script;
+	public String getOperations() {
+		return operations;
 	}
 
 	/**
-	 * @param script the script to set
+	 * @param operations the operations to set
 	 */
-	public void setScript(String script) {
-		this.script = script;
+	public void setOperations(String operations) {
+		this.operations = operations;
+	}
+
+	/**
+	 * @return the actions
+	 */
+	public String getActions() {
+		return actions;
+	}
+
+	/**
+	 * @param actions the actions to set
+	 */
+	public void setActions(String actions) {
+		this.actions = actions;
+	}
+
+	/**
+	 * @return the nested
+	 */
+	public boolean isNested() {
+		return nested;
+	}
+
+	/**
+	 * @param nested the nested to set
+	 */
+	public void setNested(boolean nested) {
+		this.nested = nested;
+	}
+
+	/**
+	 * @return the metaless
+	 */
+	public boolean isMetaless() {
+		return metaless;
+	}
+
+	/**
+	 * @param metaless the metaless to set
+	 */
+	public void setMetaless(boolean metaless) {
+		this.metaless = metaless;
 	}
 
 	/**
@@ -211,6 +267,20 @@ public abstract class JseaFormSupportTag extends FormTag {
 	 */
 	public void setBackable(boolean backable) {
 		this.backable = backable;
+	}
+
+	/**
+	 * @return the script
+	 */
+	public String getScript() {
+		return script;
+	}
+
+	/**
+	 * @param script the script to set
+	 */
+	public void setScript(String script) {
+		this.script = script;
 	}
 
 	/**
@@ -287,9 +357,15 @@ public abstract class JseaFormSupportTag extends FormTag {
 		if (!Strings.isEmpty(keyProp)) jsob.appendJseaOption(TagConstants.JSEA_OPTION_KEY_PROP, keyProp);
 		String mode = this.getMode();
 		if (!Strings.isEmpty(mode)) jsob.appendJseaOption(TagConstants.JSEA_OPTION_MODE, mode);
+		String operations = this.getOperations();
+		if (!Strings.isEmpty(operations)) jsob.appendJseaOption(TagConstants.JSEA_OPTION_OPERATIONS, operations, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		String actions = this.getActions();
+		if (!Strings.isEmpty(actions)) jsob.appendJseaOption(TagConstants.JSEA_OPTION_ACTIONS, actions, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		// find a model object (the default rule is that funcname is just modelname)
 		Object model  = this.pageContext.getRequest().getAttribute(this.getFuncname());
 		if (model != null) jsob.appendJseaOption(TagConstants.JSEA_OPTION_MODEL, model);
+		if (this.isNested())   jsob.appendJseaOption(TagConstants.JSEA_OPTION_NESTED, this.isNested());
+		if (this.isMetaless()) jsob.appendJseaOption(TagConstants.JSEA_OPTION_METALESS, this.isMetaless());
 		if (this.isBackable()) jsob.appendJseaOption(TagConstants.JSEA_OPTION_BACKABLE, this.isBackable());
 		Object messages  = this.pageContext.getRequest().getAttribute(WeaConstants.REQUEST_ATTRNAME_MESSAGES);
 		if (messages != null) {

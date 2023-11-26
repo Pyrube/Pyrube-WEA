@@ -36,9 +36,29 @@ public class ButtonTag extends JseaActionElementTag {
 	private static final long serialVersionUID = 3775967879978319449L;
 	
 	private static final String BUTTON_TAG = "button";
-	private static final String BUTTON_NAME_PREFIX = "btn";
 	private static final String BUTTON_TEXT_PREFIX = "button.text.";
 	private static final String BUTTON_ALT_PREFIX = "button.alt.";
+
+	private String type;
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@Override
+	protected String resolveElementTag() throws JspException {
+		return BUTTON_TAG;
+	}
 
 	/**
 	 * @return the jseaAttrOptions
@@ -48,32 +68,26 @@ public class ButtonTag extends JseaActionElementTag {
 		return TagConstants.JSEA_ATTR_BUTTON_OPTIONS;
 	}
 
-	/**
-	 * @return the name with prefix
-	 */
-	public String getName() throws JspException {
-		return BUTTON_NAME_PREFIX + Strings.capitalize(super.getName());
-	}
-
 	@Override
-	protected String resolveElementTag() throws JspException {
-		return BUTTON_TAG;
+	protected void appendJseaDefaultOptions(JseaOptionsBuilder jsob) throws JspException {
+		super.appendJseaDefaultOptions(jsob);
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_TYPE, getType());
 	}
 
 	@Override
 	protected String resolveCssClass() throws JspException {
 		String cssClass = super.resolveCssClass();
-		return "btn " + super.getName() + " " + (cssClass == null ? Strings.EMPTY : cssClass);
+		return "btn " + getName() + " " + (cssClass == null ? Strings.EMPTY : cssClass);
 	}
 
 	@Override
 	protected String resolveDefaultText() throws JspException {
-		return BUTTON_TEXT_PREFIX + super.getName();
+		return BUTTON_TEXT_PREFIX + getName();
 	}
 
 	@Override
 	protected String resolveDefaultTitle() throws JspException {
-		return BUTTON_ALT_PREFIX + super.getName();
+		return BUTTON_ALT_PREFIX + getName();
 	}
 
 }

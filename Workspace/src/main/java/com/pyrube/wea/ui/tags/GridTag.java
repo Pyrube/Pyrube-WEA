@@ -21,6 +21,7 @@ import javax.servlet.jsp.JspException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.tags.form.TagWriter;
 
+import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.inquiry.SearchCriteria;
 import com.pyrube.wea.util.Weas;
 /**
@@ -40,12 +41,10 @@ public class GridTag extends JseaElementSupportTag {
 	/**
 	 * stylesheet for Grid
 	 */
-	private static final String STYLESHEET_GRID_CONTAINER = "grid-container";
 	private static final String STYLESHEET_GRID_HEADER = "header";
 	private static final String STYLESHEET_GRID_AREA = "list-area";
 	private static final String STYLESHEET_GRID_AREA_HEADER = "header";
 	
-	private String stylesheet = STYLESHEET_GRID_CONTAINER;
 	private String header;
 	private String funcname;
 	private String url;
@@ -56,7 +55,9 @@ public class GridTag extends JseaElementSupportTag {
 	private Object postProps;
 	private boolean multiple = false;
 	private boolean sortable = true;
+	private String defaultSortBy = null;
 	private boolean pageable = true;
+	private String pagebar = (String) Apps.config.property("APP_PAGEBAR");
 	private int pageSize = SearchCriteria.DEFAULT_PAGE_SIZE;
 	
 	private String nonnullCols;
@@ -72,20 +73,6 @@ public class GridTag extends JseaElementSupportTag {
 	@Override
 	public String getJseaAttrOptions() {
 		return TagConstants.JSEA_ATTR_GRID_OPTIONS;
-	}
-	
-	/**
-	 * @return the stylesheet
-	 */
-	public String getStylesheet() {
-		return stylesheet;
-	}
-
-	/**
-	 * @param stylesheet the stylesheet to set
-	 */
-	public void setStylesheet(String stylesheet) {
-		this.stylesheet = stylesheet;
 	}
 
 	/**
@@ -229,6 +216,20 @@ public class GridTag extends JseaElementSupportTag {
 	}
 
 	/**
+	 * @return the defaultSortBy
+	 */
+	public String getDefaultSortBy() {
+		return defaultSortBy;
+	}
+
+	/**
+	 * @param defaultSortBy the defaultSortBy to set
+	 */
+	public void setDefaultSortBy(String defaultSortBy) {
+		this.defaultSortBy = defaultSortBy;
+	}
+
+	/**
 	 * @return the pageable
 	 */
 	public boolean isPageable() {
@@ -240,6 +241,20 @@ public class GridTag extends JseaElementSupportTag {
 	 */
 	public void setPageable(boolean pageable) {
 		this.pageable = pageable;
+	}
+
+	/**
+	 * @return the pagebar
+	 */
+	public String getPagebar() {
+		return pagebar;
+	}
+
+	/**
+	 * @param pagebar the pagebar to set
+	 */
+	public void setPagebar(String pagebar) {
+		this.pagebar = pagebar;
 	}
 
 	/**
@@ -366,9 +381,7 @@ public class GridTag extends JseaElementSupportTag {
 	}
 
 	@Override
-	protected String resolveCssClass() throws JspException {
-		return this.stylesheet;
-	}
+	protected String getDefaultCssClass() throws JspException { return"grid-container"; }
 
 	@Override
 	protected String resolveJseaOptions() {
@@ -377,27 +390,29 @@ public class GridTag extends JseaElementSupportTag {
 			.appendJseaOption(TagConstants.JSEA_OPTION_URL, getUrl())
 			.appendJseaOption(TagConstants.JSEA_OPTION_RS_PROP, getRsProp())
 			.appendJseaOption(TagConstants.JSEA_OPTION_RESULTSET, getRs())
-			.appendJseaOption(TagConstants.JSAF_OPTION_ASYNC, isAsync())
-			.appendJseaOption(TagConstants.JSAF_OPTION_RENDERS, getRenders(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+			.appendJseaOption(TagConstants.JSEA_OPTION_ASYNC, isAsync())
+			.appendJseaOption(TagConstants.JSEA_OPTION_RENDERS, getRenders(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		appendPostProps(jsob);
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_MULTIPLE, isMultiple())
 			.appendJseaOption(TagConstants.JSEA_OPTION_SORTABLE, isSortable())
+			.appendJseaOption(TagConstants.JSEA_OPTION_DEFAULT_SORT_COLUMN, getDefaultSortBy())
 			.appendJseaOption(TagConstants.JSEA_OPTION_PAGEABLE, isPageable())
+			.appendJseaOption(TagConstants.JSEA_OPTION_PAGEBAR, getPagebar())
 			.appendJseaOption(TagConstants.JSEA_OPTION_PAGE_SIZE, getPageSize())
-			.appendJseaOption(TagConstants.JSAF_EVENT_ONSELECT, getOnSelect(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION)
-			.appendJseaOption(TagConstants.JSAF_EVENT_ONDESELECT, getOnDeselect(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION)
-			.appendJseaOption(TagConstants.JSAF_EVENT_ONWRITE, getOnWrite(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION);
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONSELECT, getOnSelect(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONDESELECT, getOnDeselect(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONWRITE, getOnWrite(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
 		return jsob.toString();
 	}
-	
+
 	@Override
 	protected String resolveJseaValidRules() {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
-		jsob.appendJseaOption(TagConstants.JSEA_VALID_RULE_NONNULL_COLS, getNonnullCols(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT)
+		jsob.appendJseaOption(TagConstants.JSEA_VALID_RULE_NONNULL_COLS, getNonnullCols(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
 			.appendJseaOption(TagConstants.JSEA_VALID_RULE_UNIQUE_INDEX, getUniqueIndex());
 		return jsob.toString();
 	}
-	
+
 	/**
 	 * Cascades builder
 	 * @return
@@ -405,7 +420,7 @@ public class GridTag extends JseaElementSupportTag {
 	private JseaOptionsBuilder appendPostProps(JseaOptionsBuilder builder) {
 		Object postProps = this.getPostProps();
 		if (String.class.isInstance(postProps)) {
-			builder.appendJseaOption(TagConstants.JSEA_OPTION_POST_PROPS, postProps, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+			builder.appendJseaOption(TagConstants.JSEA_OPTION_POST_PROPS, postProps, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		} else {
 			builder.appendJseaOption(TagConstants.JSEA_OPTION_POST_PROPS, postProps);
 		}

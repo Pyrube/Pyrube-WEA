@@ -111,7 +111,7 @@ public class AmountfieldTag extends TextfieldTag {
 	protected void appendExtraValidRules(JseaOptionsBuilder jsob) throws JspException {
 		super.appendExtraValidRules(jsob);
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_FORMAT, this.resolveFormat())
-			.appendJseaOption("restriction", "[" + getDecimal() + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION);	
+			.appendJseaOption("restriction", "[" + getDecimal() + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);	
 	}
 
 	@Override

@@ -278,7 +278,7 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 		jsob.appendJseaOption("value", value)
 			.appendJseaOption(TagConstants.JSEA_OPTION_NAME, this.getName())
 			.appendJseaOption(TagConstants.JSEA_OPTION_I18N_PREFIX, this.getI18nPrefix())
-			.appendJseaOption(TagConstants.JSEA_EVENT_ONCHECK, this.onCheck, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION);
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONCHECK, this.onCheck, JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
 	}
 
 	/**

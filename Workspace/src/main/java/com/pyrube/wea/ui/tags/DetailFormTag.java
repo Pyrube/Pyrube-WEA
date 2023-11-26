@@ -208,10 +208,10 @@ public class DetailFormTag extends JseaFormSupportTag {
 			.appendJseaOption(TagConstants.JSEA_OPTION_REF_PROP, getRefProp())
 			.appendJseaOption(TagConstants.JSEA_OPTION_STAT_PROP, getStatProp())
 			.appendJseaOption(TagConstants.JSEA_OPTION_FLAG_PROP, getFlagProp())
-			.appendJseaOption(TagConstants.JSEA_OPTION_PRE_HANDLER, getPreHandler(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION)
-			.appendJseaOption(TagConstants.JSEA_OPTION_PRE_HANDLERS, getPreHandlers(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT)
-			.appendJseaOption(TagConstants.JSEA_OPTION_POST_HANDLER, getPostHandler(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION)
-			.appendJseaOption(TagConstants.JSEA_OPTION_POST_HANDLERS, getPostHandlers(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT)
+			.appendJseaOption(TagConstants.JSEA_OPTION_PRE_HANDLER, getPreHandler(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_OPTION_PRE_HANDLERS, getPreHandlers(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
+			.appendJseaOption(TagConstants.JSEA_OPTION_POST_HANDLER, getPostHandler(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_OPTION_POST_HANDLERS, getPostHandlers(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
 			.appendJseaOption(TagConstants.JSEA_OPTION_VALIDATABLE, isValidatable())
 			.appendJseaOption(TagConstants.JSEA_OPTION_MODIFIABLE, isModifiable());
 		appendExtraOptions(jsob);
@@ -223,7 +223,7 @@ public class DetailFormTag extends JseaFormSupportTag {
 		Object excludeds = this.getExcludeds();
 		if (!ObjectUtils.isEmpty(excludeds)) {
 			if (String.class.isInstance(excludeds)) {
-				jsob.appendJseaOption("excludes", excludeds, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+				jsob.appendJseaOption("excludes", excludeds, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 			} else {
 				jsob.appendJseaOption("excludes", excludeds);
 			}

@@ -409,12 +409,12 @@ public class SelefieldTag extends TextfieldTag implements OptionAware {
 			.appendJseaOption("optiononly", this.isOptiononly())
 			.appendJseaOption("manualonly", this.isManualonly())
 			.appendJseaOption("autocomplete", this.getAutocomplete())
-			.appendJseaOption("onChange", this.onChange, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION)
+			.appendJseaOption("onChange", this.onChange, JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
 			.appendJseaOption("triggerId", this.getTriggerId())
 			.appendJseaOption("panelId", this.getDroppanelId());
 		Object items = getItems();
 		if (items instanceof String) {
-			jsob.appendJseaOption("dropdownItems", items, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+			jsob.appendJseaOption("dropdownItems", items, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		}
 	}
 

@@ -38,7 +38,6 @@ public class LinkTag extends JseaActionElementTag {
 	private static final long serialVersionUID = 5517134065228788512L;
 
 	private static final String LINK_TAG = "a";
-	private static final String LINK_NAME_PREFIX = "lnk";
 	private static final String LINK_TEXT_PREFIX = "link.text.";
 	private static final String LINK_ALT_PREFIX = "link.alt.";
 
@@ -50,13 +49,6 @@ public class LinkTag extends JseaActionElementTag {
 		return TagConstants.JSEA_ATTR_LINK_OPTIONS;
 	}
 
-	/**
-	 * @return the name with prefix
-	 */
-	public String getName() throws JspException {
-		return LINK_NAME_PREFIX + Strings.capitalize(super.getName());
-	}
-
 	@Override
 	protected String resolveElementTag() throws JspException {
 		return LINK_TAG;
@@ -65,7 +57,7 @@ public class LinkTag extends JseaActionElementTag {
 	@Override
 	protected String resolveCssClass() throws JspException {
 		String cssClass = super.resolveCssClass();
-		return "lnk " + super.getName() + " " + (cssClass == null ? Strings.EMPTY : cssClass);
+		return "lnk " + getName() + " " + (cssClass == null ? Strings.EMPTY : cssClass);
 	}
 
 	@Override
@@ -76,12 +68,12 @@ public class LinkTag extends JseaActionElementTag {
 
 	@Override
 	protected String resolveDefaultText() throws JspException {
-		return LINK_TEXT_PREFIX + super.getName();
+		return LINK_TEXT_PREFIX + getName();
 	}
 
 	@Override
 	protected String resolveDefaultTitle() throws JspException {
-		return LINK_ALT_PREFIX + super.getName();
+		return LINK_ALT_PREFIX + getName();
 	}
 
 }

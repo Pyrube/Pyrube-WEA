@@ -17,174 +17,29 @@
 package com.pyrube.wea.ui.tags;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import org.springframework.util.ObjectUtils;
-
-import com.pyrube.one.lang.Strings;
-import com.pyrube.wea.util.Weas;
+import org.springframework.web.servlet.tags.form.TagWriter;
 
 /**
  * The <code>seaco:option</code> tag is used to support operations 
  * inside a <code>ColumnTag</code> tag.
- *<p>This tag must be nested under an operation aware tag.
+ * <p>This tag must be nested under an operation aware tag.
+ * <p>As of the release Pyrube-WEA 1.1, revised superclass to
+ * <code>JseaElementSupportTag</code>
  *
  * @author Aranjuez
  * @version Dec 01, 2009
  * @since Pyrube-WEA 1.0
  */
-public class OperationTag extends BodyTagSupport  {
+public class OperationTag extends JseaActionElementTag {
 	
 	/**
 	 * serial version uid
 	 */
 	private static final long serialVersionUID = 8796434762753623023L;
 
-	private String name;
-	
-	private String url;
-	
-	private String mode;
-	
-	private String confirm;
-	
-	private String access;
-	
-	private String inactive;
-	
-	private String hidden;
-	
-	private String invisible;
-	
-	private String gone;
-	
 	private String permanent;
-	
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @return the url
-	 */
-	public String getUrl() {
-		return url;
-	}
-
-	/**
-	 * @param url the url to set
-	 */
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	/**
-	 * @return the mode
-	 */
-	public String getMode() {
-		return mode;
-	}
-
-	/**
-	 * @param mode the mode to set
-	 */
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
-	/**
-	 * @return the confirm
-	 */
-	public String getConfirm() {
-		return confirm;
-	}
-
-	/**
-	 * @param confirm the confirm to set
-	 */
-	public void setConfirm(String confirm) {
-		this.confirm = confirm;
-	}
-
-	/**
-	 * @return the access
-	 */
-	public String getAccess() {
-		return access;
-	}
-
-	/**
-	 * @param access the access to set
-	 */
-	public void setAccess(String access) {
-		this.access = access;
-	}
-
-	/**
-	 * @return the inactive
-	 */
-	public String getInactive() {
-		return inactive;
-	}
-
-	/**
-	 * @param inactive the inactive to set
-	 */
-	public void setInactive(String inactive) {
-		this.inactive = inactive;
-	}
-
-	/**
-	 * @return the hidden
-	 */
-	public String getHidden() {
-		return hidden;
-	}
-
-	/**
-	 * @param hidden the hidden to set
-	 */
-	public void setHidden(String hidden) {
-		this.hidden = hidden;
-	}
-
-	/**
-	 * @return the invisible
-	 */
-	public String getInvisible() {
-		return invisible;
-	}
-
-	/**
-	 * @param invisible the invisible to set
-	 */
-	public void setInvisible(String invisible) {
-		this.invisible = invisible;
-	}
-
-	/**
-	 * @return the gone
-	 */
-	public String getGone() {
-		return gone;
-	}
-
-	/**
-	 * @param gone the gone to set
-	 */
-	public void setGone(String gone) {
-		this.gone = gone;
-	}
 
 	/**
 	 * @return the permanent
@@ -201,77 +56,47 @@ public class OperationTag extends BodyTagSupport  {
 	}
 
 	@Override
-	public int doStartTag() throws JspException {
-		return EVAL_BODY_INCLUDE;
-	}
+	protected String resolveElementTag() throws JspException { return null; }
+
+	@Override
+	protected String resolveDefaultText() throws JspException { return null; }
+
+	@Override
+	protected String resolveDefaultTitle() throws JspException { return null; }
+
+	@Override
+	protected int writeTagContent(TagWriter tagWriter) throws JspException { return SKIP_BODY; }
 
 	@Override
 	public int doEndTag() throws JspException {
-		Operation operation = new Operation(name);
-		operation.setUrl(url);
-		operation.setMode(mode);
-		operation.setConfirm(confirm);
-		operation.setAccess(access);
-		operation.setInactive(inactive);
-		operation.setHidden(hidden);
-		operation.setInvisible(invisible);
-		operation.setGone(gone);
-		operation.setPermanent(permanent);
-		// find a parameter aware ancestor
-		OperationAware operationAwareTag = (OperationAware) findAncestorWithClass(this,
-				OperationAware.class);
-		if (operationAwareTag == null) {
-			throw new JspException(
-					"The Operation tag must be a descendant of a tag that supports Operation");
-		}
-		if(this.hasAccess(access)){
+		if (this.hasAccess(getAccess())) {
+			Operation operation = new Operation(getName());
+			operation.setJseaOptions(this.resolveJseaOptions(true));
+			// find a parameter aware ancestor
+			OperationAware operationAwareTag = (OperationAware) findAncestorWithClass(this,
+					OperationAware.class);
+			if (operationAwareTag == null) {
+				throw new JspException(
+						"The Operation tag must be a descendant of a tag that supports Operation");
+			}
 			operationAwareTag.addOperation(operation);
 		}
 		return EVAL_PAGE;
 	}
 
-	@Override
-	public void release() {
-		super.release();
-		this.name = null;
-	}
-
 	/**
-	 * check whether user has the given access
-	 * @param accessExpression
-	 * @return true if user has access
+	 * An operation class.
+	 * 
+	 * @author Aranjuez
+	 * @version Dec 01, 2009
+	 * @since Pyrube-WEA 1.0
 	 */
-	private boolean hasAccess(String accessExpression) {
-		try {
-			if (Strings.isEmpty(accessExpression)) return(true);
-			return (Weas.evaluateUserAccessExpression(accessExpression));
-		} catch (Exception e) {
-			return(false);
-		}
-	}
-
 	public static class Operation {
 
 		private String name;
-		
-		private String url;
-		
-		private String mode;
-		
-		private String confirm;
-		
-		private String access;
-		
-		private String inactive;
-		
-		private String hidden;
-		
-		private String invisible;
-		
-		private String gone;
-		
-		private String permanent;
-		
+
+		private String jseaOptions;
+
 		public Operation(String name) {
 			this.name = name;
 		}
@@ -291,129 +116,17 @@ public class OperationTag extends BodyTagSupport  {
 		}
 
 		/**
-		 * @return the url
+		 * @return the jseaOptions
 		 */
-		public String getUrl() {
-			return url;
+		public String getJseaOptions() {
+			return jseaOptions;
 		}
 
 		/**
-		 * @param url the url to set
+		 * @param jseaOptions the jseaOptions to set
 		 */
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		/**
-		 * @return the mode
-		 */
-		public String getMode() {
-			return mode;
-		}
-
-		/**
-		 * @param mode the mode to set
-		 */
-		public void setMode(String mode) {
-			this.mode = mode;
-		}
-
-		/**
-		 * @return the confirm
-		 */
-		public String getConfirm() {
-			return confirm;
-		}
-
-		/**
-		 * @param confirm the confirm to set
-		 */
-		public void setConfirm(String confirm) {
-			this.confirm = confirm;
-		}
-
-		/**
-		 * @return the access
-		 */
-		public String getAccess() {
-			return access;
-		}
-
-		/**
-		 * @param access the access to set
-		 */
-		public void setAccess(String access) {
-			this.access = access;
-		}
-
-		/**
-		 * @return the inactive
-		 */
-		public String getInactive() {
-			return inactive;
-		}
-
-		/**
-		 * @param inactive the inactive to set
-		 */
-		public void setInactive(String inactive) {
-			this.inactive = inactive;
-		}
-
-		/**
-		 * @return the hidden
-		 */
-		public String getHidden() {
-			return hidden;
-		}
-
-		/**
-		 * @param hidden the hidden to set
-		 */
-		public void setHidden(String hidden) {
-			this.hidden = hidden;
-		}
-
-		/**
-		 * @return the invisible
-		 */
-		public String getInvisible() {
-			return invisible;
-		}
-
-		/**
-		 * @param invisible the invisible to set
-		 */
-		public void setInvisible(String invisible) {
-			this.invisible = invisible;
-		}
-
-		/**
-		 * @return the gone
-		 */
-		public String getGone() {
-			return gone;
-		}
-
-		/**
-		 * @param gone the gone to set
-		 */
-		public void setGone(String gone) {
-			this.gone = gone;
-		}
-
-		/**
-		 * @return the permanent
-		 */
-		public String getPermanent() {
-			return permanent;
-		}
-
-		/**
-		 * @param permanent the permanent to set
-		 */
-		public void setPermanent(String permanent) {
-			this.permanent = permanent;
+		public void setJseaOptions(String jseaOptions) {
+			this.jseaOptions = jseaOptions;
 		}
 
 		@Override
@@ -437,36 +150,5 @@ public class OperationTag extends BodyTagSupport  {
 			return result;
 		}
 		
-		/**
-		 * Returns a <code>JseaOptionsBuilder</code> representation of the object.
-		 * @return
-		 */
-		public JseaOptionsBuilder toJsonBuilder() {
-			JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder().setRenderingWithBraces(true);
-			jsob.appendJseaOption(TagConstants.JSEA_OPTION_URL, this.getUrl())
-				.appendJseaOption(TagConstants.JSEA_OPTION_MODE, this.getMode());
-			String confirm = this.getConfirm();
-			if (Boolean.TRUE.toString().equalsIgnoreCase(confirm)) confirm = this.getName();
-			else if (Boolean.FALSE.toString().equalsIgnoreCase(confirm)) confirm = null;
-			jsob.appendJseaOption(TagConstants.JSEA_OPTION_CONFIRM, confirm);
-			String inactiveRules = this.getInactive();
-			if (!Strings.isEmpty(inactiveRules)) {
-				jsob.appendJseaOption(TagConstants.JSEA_OPTION_INACTIVE, "[" + inactiveRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-			}
-			String hiddenRules = this.getHidden();
-			if (!Strings.isEmpty(hiddenRules)) {
-				jsob.appendJseaOption(TagConstants.JSEA_OPTION_HIDDEN, "[" + hiddenRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-			}
-			String invisibleRules = this.getInvisible();
-			if (!Strings.isEmpty(invisibleRules)) {
-				jsob.appendJseaOption(TagConstants.JSEA_OPTION_INVISIBLE, "[" + invisibleRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-			}
-			String goneRules = this.getGone();
-			if (!Strings.isEmpty(goneRules)) {
-				jsob.appendJseaOption(TagConstants.JSEA_OPTION_GONE, "[" + goneRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-			}
-			jsob.appendJseaOption(TagConstants.JSAF_OPTION_PERMANENT, this.getPermanent());
-			return jsob;
-		}
-	} 
+	}
 }

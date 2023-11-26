@@ -62,9 +62,9 @@ public class PopupFormTag extends DetailFormTag {
 	protected void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException {
 		Object returnProps = this.getReturnProps();
 		if (String.class.isInstance(returnProps)) {
-			jsob.appendJseaOption(TagConstants.JSAF_OPTION_RETURN_PROPS, returnProps, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+			jsob.appendJseaOption(TagConstants.JSEA_OPTION_RETURN_PROPS, returnProps, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		} else {
-			jsob.appendJseaOption(TagConstants.JSAF_OPTION_RETURN_PROPS, returnProps);
+			jsob.appendJseaOption(TagConstants.JSEA_OPTION_RETURN_PROPS, returnProps);
 		}
 	}
 	

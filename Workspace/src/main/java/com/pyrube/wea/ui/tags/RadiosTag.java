@@ -21,44 +21,40 @@ import javax.servlet.jsp.JspException;
 import org.springframework.web.servlet.tags.form.TagWriter;
 
 /**
- * The <code>Checkboxes</code> tag renders multiple HTML 'li' tags with 
- * respective invisible HTML 'input' tag with type 'checkbox'.
+ * The <code>Radios</code> tag renders multiple HTML 'li' tags with 
+ * respective invisible HTML 'input' tag with type 'radio'.
  * 
  * @author Aranjuez
- * @version Dec 01, 2009
- * @since Pyrube-WEA 1.0
+ * @version Oct 01, 2023
+ * @since Pyrube-WEA 1.1
  */
-public class CheckboxesTag extends JseaMultiCheckedFieldSupportTag {
+public class RadiosTag extends JseaMultiCheckedFieldSupportTag {
 
 	/**
 	 * serial version uid
 	 */
-	private static final long serialVersionUID = 6517882611262851884L;
+	private static final long serialVersionUID = 8472530387990828467L;
 
-	/**
-	 * @return the jseaAttrOptions
-	 */
 	@Override
 	public String getJseaAttrOptions() {
-		return TagConstants.JSEA_ATTR_CHECKBOXES_OPTIONS;
+		return TagConstants.JSEA_ATTR_RADIOS_OPTIONS;
 	}
 
 	@Override
 	public String getJseaAttrSingleFieldOptions() {
-		return TagConstants.JSEA_ATTR_CHECKBOX_OPTIONS;
+		return TagConstants.JSEA_ATTR_RADIO_OPTIONS;
 	}
 
 	@Override
 	protected void writeOptionalAttributes(TagWriter tagWriter) throws JspException {
 		super.writeOptionalAttributes(tagWriter);
-		
-		tagWriter.writeAttribute(TagConstants.JSEA_ATTR_FIELD_TYPE, "fields.checkboxes");
+		tagWriter.writeAttribute(TagConstants.JSEA_ATTR_FIELD_TYPE, "fields.radios");
 	}
 
 	@Override
-	protected String resolveFieldType() throws JspException { return "checkbox"; }
+	protected String resolveFieldType() throws JspException { return "radio"; }
 
 	@Override
-	protected String getDefaultCssClass() { return "checkboxes"; }
+	protected String getDefaultCssClass() { return "radios"; }
 
 }

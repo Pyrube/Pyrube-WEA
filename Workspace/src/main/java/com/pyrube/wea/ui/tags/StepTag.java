@@ -25,20 +25,19 @@ import org.springframework.web.servlet.tags.form.TagWriter;
 import com.pyrube.one.lang.Strings;
 
 /**
- * JSEA Component tag for rendering a HTML 'li' element to be used as a JSEA tab header and a 
- * HTML 'div' element to be used as a JSEA tab body.
+ * JSEA Component tag for rendering a HTML 'li' element to be used as a JSEA step header and a 
+ * HTML 'div' element to be used as a JSEA step body.
  * 
  * @author Aranjuez
- * @version Dec 01, 2009
- * @since Pyrube-WEA 1.0
+ * @version Oct 01, 2023
+ * @since Pyrube-WEA 1.1
  */
-public class TabTag extends JseaElementSupportTag implements BodyTag  {
-
+public class StepTag extends JseaElementSupportTag implements BodyTag {
 	/**
 	 * serial version uid
 	 */
-	private static final long serialVersionUID = 7039940680271353107L;
-
+	private static final long serialVersionUID = 2030443559544333796L;
+	
 	private String header;
 	private String url;
 	private BodyContent bodyContent;
@@ -48,7 +47,7 @@ public class TabTag extends JseaElementSupportTag implements BodyTag  {
 	 */
 	@Override
 	public String getJseaAttrOptions() {
-		return TagConstants.JSEA_ATTR_TAB_OPTIONS;
+		return TagConstants.JSEA_ATTR_STEP_OPTIONS;
 	}
 
 	/**
@@ -104,24 +103,28 @@ public class TabTag extends JseaElementSupportTag implements BodyTag  {
 	protected int writeTagContent(TagWriter tagWriter) throws JspException {
 		this.setTagWriter(tagWriter);
 		tagWriter.startTag("li");	
-		//<li jsea-tab-options="url:'/search'"><a href="#ajaxTest">Sample Ajax Test</a></li>	
+		//<li jsea-step-options="url:'/step/1'">
+		//  <span>Step 1</span>
+		//  <span class="num">1</span>
+		//  <span class="arrow"></span>
+		//</li>	
 		writeJseaOptionsAttribute(tagWriter);
 		tagWriter.forceBlock();
 		
-		writeLink(tagWriter);
+		writeHeader(tagWriter);
 		
 		return EVAL_BODY_AGAIN;
 	}
 
 	@Override
 	public int doEndTag() throws JspException {
-		TabBody tabBody = new TabBody(getId(), resolveCssClass(), getBodyContent() == null ? Strings.EMPTY : getBodyContent().getString());
-		// find a tab body aware ancestor
-		TabBodyAware tabBodyAware = (TabBodyAware)findAncestorWithClass(this, TabBodyAware.class);
-		if (tabBodyAware == null) {
-			throw new JspException("The Tab tag must be a descendant of a tag that supports tab");
+		StepBody stepBody = new StepBody(getId(), resolveCssClass(), getBodyContent() == null ? Strings.EMPTY : getBodyContent().getString());
+		// find a step body aware ancestor
+		StepBodyAware stepBodyAware = (StepBodyAware)findAncestorWithClass(this, StepBodyAware.class);
+		if (stepBodyAware == null) {
+			throw new JspException("The Step tag must be a descendant of a tag that supports step");
 		}
-		tabBodyAware.addTabBody(tabBody);
+		stepBodyAware.addStepBody(stepBody);
 		return EVAL_PAGE;
 	}
 
@@ -135,38 +138,49 @@ public class TabTag extends JseaElementSupportTag implements BodyTag  {
 	}
 
 	@Override
-	protected String getDefaultCssClass() throws JspException { return"tab-body"; }
-
+	protected String getDefaultCssClass() throws JspException { return"step-body"; }
+	
 	@Override
 	protected String resolveJseaOptions() {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_ID, getId());
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_URL, getUrl());
 		return jsob.toString();
 	}
 
 	/**
-	 * write link tag as tab header
-	 * @param tabId
-	 * @param header
+	 * write step header
+	 * @param tagWriter
 	 * @throws JspException
 	 */
-	private void writeLink(TagWriter tagWriter) throws JspException {
-		tagWriter.startTag("a");
-		tagWriter.writeAttribute("href", "#" + getId());
+	private void writeHeader(TagWriter tagWriter) throws JspException {
+		// find a step body aware ancestor
+		StepBodyAware stepBodyAware = (StepBodyAware)findAncestorWithClass(this, StepBodyAware.class);
+		if (stepBodyAware == null) {
+			throw new JspException("The Step tag must be a descendant of a tag that supports step");
+		}
+		tagWriter.startTag("span");
 		tagWriter.appendValue(localizeAttribute("header"));
+		tagWriter.endTag();
+		tagWriter.startTag("span");
+		tagWriter.writeAttribute(CLASS_ATTRIBUTE, "num");
+		tagWriter.appendValue(String.valueOf(stepBodyAware.size() + 1));
+		tagWriter.endTag();
+		tagWriter.startTag("span");
+		tagWriter.writeAttribute(CLASS_ATTRIBUTE, "arrow");
 		tagWriter.endTag();
 	}
 
 	/**
-	 * A tab body.
+	 * A step body.
 	 * 
 	 * @author Aranjuez
-	 * @version Dec 01, 2009
-	 * @since Pyrube-WEA 1.0
+	 * @version Oct 01, 2023
+	 * @since Pyrube-WEA 1.1
 	 */
-	public static class TabBody {
+	public static class StepBody {
 		private String id;
-		private String stylesheet = "tab-body";
+		private String stylesheet = "step-body";
 		private String content;
 		
 		/**
@@ -175,7 +189,7 @@ public class TabTag extends JseaElementSupportTag implements BodyTag  {
 		 * @param stylesheet
 		 * @param content
 		 */
-		public TabBody(String id, String stylesheet, String content) {
+		public StepBody(String id, String stylesheet, String content) {
 			super();
 			this.id = id;
 			this.stylesheet = stylesheet;

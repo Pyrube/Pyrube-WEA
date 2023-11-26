@@ -49,6 +49,7 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	private String confirm;
 	private String reason;
 	private String yesno;
+	private String method;
 	private String callback;
 	private boolean dors;
 	private boolean toggleable;
@@ -168,6 +169,20 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	}
 	
 	/**
+	 * @return the method
+	 */
+	public String getMethod() {
+		return method;
+	}
+
+	/**
+	 * @param method the method to set
+	 */
+	public void setMethod(String method) {
+		this.method = method;
+	}
+
+	/**
 	 * @return the callback
 	 */
 	public String getCallback() {
@@ -210,6 +225,9 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	}
 
 	@Override
+	public void doInitBody() throws JspException { }
+
+	@Override
 	protected int writeTagContent(TagWriter tagWriter) throws JspException {
 		this.setTagWriter(tagWriter);
 		if (hasAccess(this.getAccess())) {
@@ -221,7 +239,7 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 			
 			//write span tag
 			tagWriter.startTag(SPAN_TAG);
-			writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_CLASS, super.getName());
+			writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_CLASS, getName());
 			tagWriter.endTag(true);
 			
 			//write em tag
@@ -229,9 +247,6 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 		}
 		return EVAL_BODY_BUFFERED;
 	}
-
-	@Override
-	public void doInitBody() throws JspException { }
 
 	@Override
 	public int doEndTag() throws JspException {
@@ -264,17 +279,18 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	protected abstract String resolveElementTag() throws JspException;
 
 	@Override
-	protected void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException {
-		jsob.appendJseaOption(TagConstants.JSEA_OPTION_NAME, super.getName())
-			.appendJseaOption(TagConstants.JSEA_OPTION_URL, getUrl())
+	protected void appendJseaOptions(JseaOptionsBuilder jsob) throws JspException {
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_URL, getUrl())
 			.appendJseaOption(TagConstants.JSEA_OPTION_MODE, getMode())
 			.appendJseaOption(TagConstants.JSEA_OPTION_SUCCESS, getSuccess())
 			.appendJseaOption(TagConstants.JSEA_OPTION_CONFIRM, getConfirm())
 			.appendJseaOption(TagConstants.JSEA_OPTION_REASON, getReason())
 			.appendJseaOption(TagConstants.JSEA_OPTION_YESNO, getYesno())
-			.appendJseaOption(TagConstants.JSAF_OPTION_CALLBACK, getCallback(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_OPTION_METHOD, getMethod(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_OPTION_CALLBACK, getCallback(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
 			.appendJseaOption(TagConstants.JSEA_OPTION_DORS, isDors())
 			.appendJseaOption(TagConstants.JSEA_OPTION_TOGGLEABLE, isToggleable());
+		super.appendJseaOptions(jsob);
 	}
 
 	@Override

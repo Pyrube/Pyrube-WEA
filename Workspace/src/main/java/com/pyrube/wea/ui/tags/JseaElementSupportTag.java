@@ -128,7 +128,7 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	@Override
-	public String getName() throws JspException {
+	protected String getName() throws JspException {
 		if (!Strings.isEmpty(this.name)) {
 			return this.name;
 		}
@@ -379,7 +379,7 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 	
 	/**
-	 * Return the default css class of this concrete <code>Element</code>
+	 * returns the default css class of this concrete <code>Element</code>
 	 * @return
 	 */
 	protected String getDefaultCssClass() throws JspException { return Strings.EMPTY; }
@@ -399,14 +399,51 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
-	 * Concrete subclass could implement this method to supply the corresponding JSEA option parameters
+	 * determines the JSEA options value for this element.
+	 * concrete subclass can override this method to supply the corresponding JSEA option parameters
 	 * in JSON format, that will be used in the JSEA javascript plugin. 
-	 * 
 	 */
-	protected abstract String resolveJseaOptions() throws JspException;
+	protected String resolveJseaOptions() throws JspException {
+		return resolveJseaOptions(false);
+	}
 
 	/**
-	 * Write JSEA options attribute
+	 * determines the JSEA options value for this element.
+	 * concrete subclass can override this method to supply the corresponding JSEA option parameters
+	 * in JSON format, that will be used in the JSEA javascript plugin. 
+	 * @param renderingWithBraces boolean
+	 */
+	protected String resolveJseaOptions(boolean renderingWithBraces) throws JspException {
+		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder().setRenderingWithBraces(renderingWithBraces);
+		appendJseaDefaultOptions(jsob);
+		appendJseaOptions(jsob);
+		return jsob.toString();
+	}
+
+	/**
+	 * appends the default option set of JSEA Options to the given JseaOptionsBuilder.
+	 * further abstract sub-classes should override this method to add in any additional 
+	 * default options but must remember to call the super method.
+	 * concrete sub-classes should call this method when/if they want to render default
+	 * options.
+	 * @param jsob JseaOptionsBuilder
+	 * @throws JspException
+	 */
+	protected void appendJseaDefaultOptions(JseaOptionsBuilder jsob) throws JspException {
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_NAME, getName());
+	}
+
+	/**
+	 * appends the option set of JSEA Options to the given JseaOptionsBuilder.
+	 * Further abstract sub-classes should override this method to add in any JSEA
+	 * additional options.
+	 * @param jsob JseaOptionsBuilder
+	 * @throws JspException
+	 */
+	protected void appendJseaOptions(JseaOptionsBuilder jsob) throws JspException {}
+
+	/**
+	 * writes JSEA options attribute
 	 * @param tagWriter
 	 * @throws JspException
 	 */
@@ -415,13 +452,13 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
-	 * Concrete subclass could implement this method to supply the corresponding JSEA validation rules
+	 * concrete subclass could implement this method to supply the corresponding JSEA validation rules
 	 * in JSON format, that will be used in the JSEA javascript plugin. 
 	 */
 	protected String resolveJseaValidRules() throws JspException { return null; }
 
 	/**
-	 * Write JSEA validation rules attribute
+	 * writes JSEA validation rules attribute
 	 * @param tagWriter
 	 * @throws JspException
 	 */
@@ -439,7 +476,7 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
-	 * Localize a given attribute value
+	 * localizes a given attribute value
 	 * @param attrName
 	 * @return
 	 * @throws JspException
@@ -470,7 +507,7 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
-	 *  Concrete subclass could implement this method to format the corresponding value
+	 * cConcrete subclass could implement this method to format the corresponding value
 	 * @param localeCode
 	 * @param nameOrPattern
 	 * @param unformated

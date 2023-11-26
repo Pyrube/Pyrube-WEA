@@ -170,7 +170,7 @@ public class DatefieldTag extends TextfieldTag {
 	protected void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException {
 		this.setTriggerId(DATEFIELD_TRIGGER_PREFIX + UUID.randomUUID().toString());
 		jsob.appendJseaOption("holidayPickable", holidayPickable)
-			.appendJseaOption("onPick", onPick, JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION);
+			.appendJseaOption("onPick", onPick, JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
 		//build xdsoft options
 		JseaOptionsBuilder xdsoftBuilder = JseaOptionsBuilder.newBuilder().setRenderingWithBraces(true);
 		String formatPattern = this.resolveFormatPattern();
@@ -179,7 +179,7 @@ public class DatefieldTag extends TextfieldTag {
 		}
 		xdsoftBuilder.appendJseaOption("timepicker", timepicker);
 		if (timepicker) xdsoftBuilder.appendJseaOption("step", step);
-		jsob.appendJseaOption("xdsoft", xdsoftBuilder.toString(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT)
+		jsob.appendJseaOption("xdsoft", xdsoftBuilder.toString(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
 			.appendJseaOption("triggerId", this.getTriggerId());
 	}
 

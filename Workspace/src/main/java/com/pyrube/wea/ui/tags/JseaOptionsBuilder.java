@@ -37,10 +37,11 @@ import com.pyrube.one.lang.Strings;
  */
 public class JseaOptionsBuilder {
 	
-	public static final String JSEA_OPTION_TYPE_JS_FUNCTION = "JAVASCRIPT_FUNC";
-	public static final String JSEA_OPTION_TYPE_JS_OBJECT = "JAVASCRIPT_OBJ";
-	private static final String ARRAY_BRACKET_START = "[";
-	private static final String ARRAY_BRACKET_END = "]";
+	public static final String JSEA_OPTION_TYPE_FUNCTION = "JAVASCRIPT_FUNC";
+	public static final String JSEA_OPTION_TYPE_OBJECT = "JAVASCRIPT_OBJ";
+	private static final String ARRAY_BRACKET_OPEN = "[", ARRAY_BRACKET_CLOSE = "]";
+	private static final String JSON_BRACE_OPEN    = "{", JSON_BRACE_CLOSE    = "}";
+	private static final String COLON = ":", COMMA = ",", SINGLE_QUOTE = "'";
 	
 	/**
 	 * whether rendering with braces '{}'
@@ -79,15 +80,15 @@ public class JseaOptionsBuilder {
 	public JseaOptionsBuilder appendJseaOption(String name, Object value, String type) {
 		if (value != null) {
 			if (count++ > 0) {
-				optionsBuilder.append(",");
+				optionsBuilder.append(COMMA);
 			}
-			optionsBuilder.append(name).append(":");
+			optionsBuilder.append(name).append(COLON);
 			String jsonString = null;
 			if (StringUtils.isEmpty(type)) {
 				jsonString = this.convertToJsonString(value);
-			} else if (JSEA_OPTION_TYPE_JS_FUNCTION.equals(type)) {
+			} else if (JSEA_OPTION_TYPE_FUNCTION.equals(type)) {
 				jsonString = this.convertToJavascriptString(value);
-			} else if (JSEA_OPTION_TYPE_JS_OBJECT.equals(type)) {
+			} else if (JSEA_OPTION_TYPE_OBJECT.equals(type)) {
 				jsonString = this.convertToJavascriptString(value);
 			}
 			optionsBuilder.append(jsonString);
@@ -110,14 +111,14 @@ public class JseaOptionsBuilder {
 	 * Append extra JSEA options string
 	 * 
 	 * @param options
-	 * @return JsafOptionsBuilder
+	 * @return JseaOptionsBuilder
 	 */
 	public JseaOptionsBuilder appendJseaOptions(String options) {
 		if (!Strings.isEmpty(options)) {
 			if (count > 0) {
-				optionsBuilder.append(",");
+				optionsBuilder.append(COMMA);
 			}
-			count += options.split(",").length;
+			count += options.split(COMMA).length;
 			optionsBuilder.append(options);
 		}
 		return this;
@@ -129,6 +130,14 @@ public class JseaOptionsBuilder {
 	public JseaOptionsBuilder setRenderingWithBraces(boolean renderingWithBraces) {
 		this.renderingWithBraces = renderingWithBraces;
 		return this;
+	}
+
+	/**
+	 * returns the number of JSEA options in this builder
+	 * @return the number of JSEA options in this builder
+	 */
+	public int size() {
+		return(count);
 	}
 	
 	/**
@@ -147,9 +156,9 @@ public class JseaOptionsBuilder {
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		if (this.renderingWithBraces) {
-			result.append("{");
-			result.append(this.optionsBuilder.toString());
-			result.append("}");
+			result.append(JSON_BRACE_OPEN)
+				.append(this.optionsBuilder.toString())
+				.append(JSON_BRACE_CLOSE);
 		} else {
 			result.append(this.optionsBuilder.toString());
 		}
@@ -164,38 +173,45 @@ public class JseaOptionsBuilder {
 	private String convertToJsonString(Object value) {
 		StringBuffer buf = new StringBuffer();
 		if (String.class.isInstance(value)) {
-			buf.append("'" + value + "'");
+			String strVal = (String) value;
+			if (strVal.startsWith(ARRAY_BRACKET_OPEN) && strVal.endsWith(ARRAY_BRACKET_CLOSE)) {
+				buf.append(strVal);
+			} else if (strVal.startsWith(JSON_BRACE_OPEN) && strVal.endsWith(JSON_BRACE_CLOSE)) {
+				buf.append(strVal);
+			} else {
+				buf.append(SINGLE_QUOTE + strVal + SINGLE_QUOTE);
+			}
 		} else if (Boolean.class.isInstance(value)) {
 			buf.append(value.toString());
 		} else if (int.class.isInstance(value)) {
 			buf.append(value.toString());
 		} else if (value.getClass().isArray()) {
 			Object[] values = ObjectUtils.toObjectArray(value);
-			buf.append(ARRAY_BRACKET_START);
+			buf.append(ARRAY_BRACKET_OPEN);
 			for (int i = 0; i < values.length; i++) {
 				if (i > 0) {
-					buf.append(",");
+					buf.append(COMMA);
 				}
 				buf.append(convertToJsonString(values[i]));
 			}
-			buf.append(ARRAY_BRACKET_END);
+			buf.append(ARRAY_BRACKET_CLOSE);
 		} else if (value instanceof List) {
-			buf.append(ARRAY_BRACKET_START);
+			buf.append(ARRAY_BRACKET_OPEN);
 			List<?> list = (List<?>) value;
 			for (int i = 0; i < list.size(); i++) {
 				if (i > 0) {
-					buf.append(",");
+					buf.append(COMMA);
 				}
 				buf.append(convertToJsonString(list.get(i)));
 			}
-			buf.append(ARRAY_BRACKET_END);
+			buf.append(ARRAY_BRACKET_CLOSE);
 		} else {
 			try {
 				if (value != null && value instanceof Data) {
 					localizeTimestamp(value);
 				}
 				// if optionValueObj is a value model, 
-				// change to string in json format {"sampleCode":"001","sampleName":"NAME OF 001"}
+				// change to string in json format {'sampleCode':'001','sampleName':'NAME OF 001'}
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
 				buf.append(mapper.writeValueAsString(value));

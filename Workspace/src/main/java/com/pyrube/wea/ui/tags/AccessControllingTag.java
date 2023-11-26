@@ -22,8 +22,8 @@ import javax.servlet.jsp.tagext.BodyTag;
 import com.pyrube.one.lang.Strings;
 import com.pyrube.wea.util.Weas;
 /**
- * Superclass for tags that access controlling is provided with permission 
- * and user roles.
+ * Superclass for tags that access/visibility controlling is provided with permission 
+ * and user roles, and with stylization methods
  * 
  * @author Aranjuez
  * @version Dec 01, 2009
@@ -35,7 +35,13 @@ public abstract class AccessControllingTag extends JseaElementSupportTag impleme
 	 * serial version uid
 	 */
 	private static final long serialVersionUID = 9169246654428043810L;
+	/**
+	 * permission to access
+	 */
 	private String access;
+	/**
+	 * JSEA stylization methods
+	 */
 	private String inactive;
 	private String hidden;
 	private String invisible;
@@ -112,34 +118,34 @@ public abstract class AccessControllingTag extends JseaElementSupportTag impleme
 	}
 
 	@Override
-	protected String resolveJseaOptions() throws JspException {
-		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
-		appendExtraOptions(jsob);
-		String inactiveRules = this.getInactive();
-		if (!Strings.isEmpty(inactiveRules)) {
-			jsob.appendJseaOption(TagConstants.JSEA_OPTION_INACTIVE, "[" + inactiveRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-		}
-		String hiddenRules = this.getHidden();
-		if (!Strings.isEmpty(hiddenRules)) {
-			jsob.appendJseaOption(TagConstants.JSEA_OPTION_HIDDEN, "[" + hiddenRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-		}
-		String invisibleRules = this.getInvisible();
-		if (!Strings.isEmpty(invisibleRules)) {
-			jsob.appendJseaOption(TagConstants.JSEA_OPTION_INVISIBLE, "[" + invisibleRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-		}
-		String goneRules = this.getGone();
-		if (!Strings.isEmpty(goneRules)) {
-			jsob.appendJseaOption(TagConstants.JSEA_OPTION_GONE, "[" + goneRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
-		}
-		return jsob.toString();
+	protected void appendJseaOptions(JseaOptionsBuilder jsob) throws JspException {
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_STYLIZATION, resolveJseaStyleOptions(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 	}
 
 	/**
-	 * appends extra JSEA options
-	 * @param paramJseaOptionsBuilder
-	 * @throws JspException
+	 * determines the JSEA stylization method value for this tag
 	 */
-	protected abstract void appendExtraOptions(JseaOptionsBuilder paramJseaOptionsBuilder) throws JspException;
+	protected String resolveJseaStyleOptions() throws JspException {
+		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
+		String inactiveRules = this.getInactive();
+		if (!Strings.isEmpty(inactiveRules)) {
+			jsob.appendJseaOption(TagConstants.JSEA_STYLE_METHOD_INACTIVE,  "[" + inactiveRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		}
+		String hiddenRules = this.getHidden();
+		if (!Strings.isEmpty(hiddenRules)) {
+			jsob.appendJseaOption(TagConstants.JSEA_STYLE_METHOD_HIDDEN, "[" + hiddenRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		}
+		String invisibleRules = this.getInvisible();
+		if (!Strings.isEmpty(invisibleRules)) {
+			jsob.appendJseaOption(TagConstants.JSEA_STYLE_METHOD_INVISIBLE, "[" + invisibleRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		}
+		String goneRules = this.getGone();
+		if (!Strings.isEmpty(goneRules)) {
+			jsob.appendJseaOption(TagConstants.JSEA_STYLE_METHOD_GONE, "[" + goneRules + "]", JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		}
+		if (jsob.size() == 0) return null;
+		return jsob.setRenderingWithBraces(true).toString();
+	}
 
 	/**
 	 * check access

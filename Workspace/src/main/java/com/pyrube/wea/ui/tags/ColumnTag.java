@@ -49,10 +49,7 @@ public class ColumnTag extends JseaElementSupportTag implements OperationAware {
 	private boolean local = false; // Whether convert datetime (in GMT:00) to local timestamp.
 	private String i18nPrefix;
 	private String i18nKey;
-	private boolean required = false;
-	private String stylesheet;
 	private boolean sortable = true;
-	private boolean asDefault;
 	private String order;
 	
 	private List<Operation> operations = new ArrayList<Operation>();
@@ -206,34 +203,6 @@ public class ColumnTag extends JseaElementSupportTag implements OperationAware {
 	}
 
 	/**
-	 * @return the required
-	 */
-	public boolean isRequired() {
-		return required;
-	}
-
-	/**
-	 * @param required the required to set
-	 */
-	public void setRequired(boolean required) {
-		this.required = required;
-	}
-
-	/**
-	 * @return the stylesheet
-	 */
-	public String getStylesheet() {
-		return stylesheet;
-	}
-
-	/**
-	 * @param stylesheet the stylesheet to set
-	 */
-	public void setStylesheet(String stylesheet) {
-		this.stylesheet = stylesheet;
-	}
-
-	/**
 	 * @return the sortable
 	 */
 	public boolean isSortable() {
@@ -245,20 +214,6 @@ public class ColumnTag extends JseaElementSupportTag implements OperationAware {
 	 */
 	public void setSortable(boolean sortable) {
 		this.sortable = sortable;
-	}
-
-	/**
-	 * @return the asDefault
-	 */
-	public boolean isAsDefault() {
-		return asDefault;
-	}
-
-	/**
-	 * @param asDefault the asDefault to set
-	 */
-	public void setAsDefault(boolean asDefault) {
-		this.asDefault = asDefault;
 	}
 
 	/**
@@ -302,7 +257,8 @@ public class ColumnTag extends JseaElementSupportTag implements OperationAware {
 		this.writeDefaultAttributes(tagWriter);
 		this.writeJseaOptionsAttribute(tagWriter);
 		if (this.operations.size() > 0) {
-			this.writeOptionalAttribute(tagWriter, TagConstants.JSAF_ATTR_COLUMN_OPERATIONS, resolveJseaOperations());
+			this.writeOptionalAttributes(tagWriter);
+			this.writeOptionalAttribute(tagWriter, TagConstants.JSEA_ATTR_COLUMN_OPERATIONS, resolveJseaOperations());
 			this.operations.clear();
 		}
 		tagWriter.forceBlock();
@@ -313,28 +269,27 @@ public class ColumnTag extends JseaElementSupportTag implements OperationAware {
 
 	@Override
 	protected String resolveCssClass() throws JspException {
-		return this.stylesheet;
+		return getStylesheet();
 	}
 
 	@Override
 	protected String resolveJseaOptions() throws JspException {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
-		jsob.appendJseaOption(TagConstants.JSAF_OPTION_PROPERTY, getName())
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_NAME, getName())
 			.appendJseaOption(TagConstants.JSEA_OPTION_TYPE, getType())
 			.appendJseaOption(TagConstants.JSEA_OPTION_OPERATION, getOperation())
 			.appendJseaOption(TagConstants.JSEA_OPTION_URL, getUrl())
 			.appendJseaOption(TagConstants.JSEA_OPTION_MODE, getMode())
-			.appendJseaOption(TagConstants.JSAF_OPTION_DEFAULT_VALUE, getDefaultValue())
+			.appendJseaOption(TagConstants.JSEA_OPTION_DEFAULT_VALUE, getDefaultValue())
 			.appendJseaOption(TagConstants.JSEA_OPTION_FORMAT, getFormat())
 			.appendJseaOption(TagConstants.JSEA_OPTION_CCY_PROP, getCcyProp())
 			.appendJseaOption(TagConstants.JSEA_OPTION_LOCAL, isLocal())
 			.appendJseaOption(TagConstants.JSEA_OPTION_I18N_PREFIX, getI18nPrefix())
 			.appendJseaOption(TagConstants.JSEA_OPTION_I18N_KEY, getI18nKey())
 			.appendJseaOption(TagConstants.JSEA_OPTION_REQUIRED, isRequired())
-			.appendJseaOption(TagConstants.JSAF_OPTION_STYLESHEET, getStylesheet())
 			.appendJseaOption(TagConstants.JSEA_OPTION_SORTABLE, isSortable())
-			.appendJseaOption(TagConstants.JSAF_OPTION_AS_DEFAULT, isAsDefault())
-			.appendJseaOption(TagConstants.JSAF_OPTION_ORDER, getOrder());
+			.appendJseaOption(TagConstants.JSEA_OPTION_ORDER, getOrder())
+			.appendJseaOption(TagConstants.JSEA_OPTION_STYLESHEET, getStylesheet());
 		return jsob.toString();
 	}
 
@@ -348,15 +303,10 @@ public class ColumnTag extends JseaElementSupportTag implements OperationAware {
 	 * @return
 	 */
 	private String resolveJseaOperations() {
-		StringBuffer buf = new StringBuffer();
-		int optindex = 0;
+		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
 		for (Operation operation : operations) {
-			if (optindex++ > 0) {
-				buf.append(",");
-			}
-			buf.append(operation.getName()).append(":")
-				.append(operation.toJsonBuilder().toString());
+			jsob.appendJseaOption(operation.getName(), operation.getJseaOptions(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		}
-		return buf.toString();
+		return jsob.toString();
 	}
 }

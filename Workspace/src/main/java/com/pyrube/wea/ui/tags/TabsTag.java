@@ -38,14 +38,18 @@ public class TabsTag extends JseaElementSupportTag implements TabBodyAware {
 	 * serial version uid
 	 */
 	private static final long serialVersionUID = 1201357278602077405L;
-	
-	private String stylesheet = "tabs-container";
-	private int active;
-	private String event;
-	private String disabled;
-	private String collapsible;
+
+	/**
+	 * the index of the current tab
+	 */
+	private int current = 0;
+
+	/**
+	 * JSEA Event, on activate/deactivate a tab event
+	 */
 	private String onActivate;
-	
+	private String onDeactivate;
+
 	private List<TabBody> tabBodies = new ArrayList<TabBody>();
 
 	/**
@@ -55,75 +59,19 @@ public class TabsTag extends JseaElementSupportTag implements TabBodyAware {
 	public String getJseaAttrOptions() {
 		return TagConstants.JSEA_ATTR_TABS_OPTIONS;
 	}
-	
+
 	/**
-	 * @return the stylesheet
+	 * @return the current
 	 */
-	public String getStylesheet() {
-		return stylesheet;
+	public int getCurrent() {
+		return current;
 	}
 
 	/**
-	 * @param stylesheet the stylesheet to set
+	 * @param current the current to set
 	 */
-	public void setStylesheet(String stylesheet) {
-		this.stylesheet = stylesheet;
-	}
-
-	/**
-	 * @return the active
-	 */
-	public int getActive() {
-		return active;
-	}
-
-	/**
-	 * @param active the active to set
-	 */
-	public void setActive(int active) {
-		this.active = active;
-	}
-
-	/**
-	 * @return the event
-	 */
-	public String getEvent() {
-		return event;
-	}
-
-	/**
-	 * @param event the event to set
-	 */
-	public void setEvent(String event) {
-		this.event = event;
-	}
-
-	/**
-	 * @return the disabled
-	 */
-	public String getDisabled() {
-		return disabled;
-	}
-
-	/**
-	 * @param disabled the disabled to set
-	 */
-	public void setDisabled(String disabled) {
-		this.disabled = disabled;
-	}
-
-	/**
-	 * @return the collapsible
-	 */
-	public String getCollapsible() {
-		return collapsible;
-	}
-
-	/**
-	 * @param collapsible the collapsible to set
-	 */
-	public void setCollapsible(String collapsible) {
-		this.collapsible = collapsible;
+	public void setCurrent(int current) {
+		this.current = current;
 	}
 
 	/**
@@ -138,6 +86,20 @@ public class TabsTag extends JseaElementSupportTag implements TabBodyAware {
 	 */
 	public void setOnActivate(String onActivate) {
 		this.onActivate = onActivate;
+	}
+
+	/**
+	 * @return the onDeactivate
+	 */
+	public String getOnDeactivate() {
+		return onDeactivate;
+	}
+
+	/**
+	 * @param onDeactivate the onDeactivate to set
+	 */
+	public void setOnDeactivate(String onDeactivate) {
+		this.onDeactivate = onDeactivate;
 	}
 
 	@Override
@@ -187,18 +149,14 @@ public class TabsTag extends JseaElementSupportTag implements TabBodyAware {
 	}
 
 	@Override
-	protected String resolveCssClass() throws JspException {
-		return this.stylesheet;
-	}
+	protected String getDefaultCssClass() throws JspException { return"tabs-container"; }
 	
 	@Override
 	protected String resolveJseaOptions() {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
-		jsob.appendJseaOption(TagConstants.JSAF_OPTION_ACTIVE, getActive())
-			.appendJseaOption(TagConstants.JSAF_OPTION_EVENT, getEvent())
-			.appendJseaOption(TagConstants.JSEA_OPTION_DISABLED, getDisabled())
-			.appendJseaOption(TagConstants.JSAF_OPTION_COLLAPSIBLE, getCollapsible())
-			.appendJseaOption(TagConstants.JSAF_EVENT_ONACTIVATE, getOnActivate(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION);
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_CURRENT, getCurrent())
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONACTIVATE, getOnActivate(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONDEACTIVATE, getOnDeactivate(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
 		return jsob.toString();
 	}
 

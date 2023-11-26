@@ -109,11 +109,13 @@ public abstract class FieldTag extends JseaElementSupportTag {
 	
 	private boolean visible = true;
 	
-	private boolean emptyable = false;
+	private boolean emptiable = false;
 	
 	private String placeholder;
 	
 	private String help;
+	
+	private String onEmpty;
 	
 	private String onfocus;
 
@@ -280,17 +282,17 @@ public abstract class FieldTag extends JseaElementSupportTag {
 	}
 
 	/**
-	 * @return the emptyable
+	 * @return the emptiable
 	 */
-	public boolean isEmptyable() {
-		return emptyable;
+	public boolean isEmptiable() {
+		return emptiable;
 	}
 
 	/**
-	 * @param emptyable the emptyable to set
+	 * @param emptiable the emptiable to set
 	 */
-	public void setEmptyable(boolean emptyable) {
-		this.emptyable = emptyable;
+	public void setEmptiable(boolean emptiable) {
+		this.emptiable = emptiable;
 	}
 
 	/**
@@ -321,6 +323,20 @@ public abstract class FieldTag extends JseaElementSupportTag {
 		this.help = help;
 	}
 	
+	/**
+	 * @return the onEmpty
+	 */
+	public String getOnEmpty() {
+		return onEmpty;
+	}
+
+	/**
+	 * @param onEmpty the onEmpty to set
+	 */
+	public void setOnEmpty(String onEmpty) {
+		this.onEmpty = onEmpty;
+	}
+
 	/**
 	 * Set the value of the '{@code onfocus}' attribute.
 	 * May be a runtime expression.
@@ -591,12 +607,14 @@ public abstract class FieldTag extends JseaElementSupportTag {
 	 */
 	protected String resolveJseaOptions() throws JspException {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
+		this.appendExtraOptions(jsob);
 		String i18nHelp = this.localizeAttribute(TagConstants.JSEA_OPTION_HELP); 
 		if (!Strings.isEmpty(i18nHelp)) {
 			jsob.appendJseaOption(TagConstants.JSEA_OPTION_HELP, i18nHelp);
 		}
-		jsob.appendJseaOption(TagConstants.JSEA_OPTION_VISIBLE, this.isVisible());
-		appendExtraOptions(jsob);
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_VISIBLE, this.isVisible())
+			.appendJseaOption(TagConstants.JSEA_OPTION_EMPTIABLE, this.isEmptiable())
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONEMPTY, this.getOnEmpty(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
 		return jsob.toString();
 	}
 	
@@ -617,7 +635,7 @@ public abstract class FieldTag extends JseaElementSupportTag {
 	}
 
 	/**
-	 * Resolve JSEA validation rules, such as: jsaf-valid-rules="{minLength:'5', maxLength:'30'}"
+	 * Resolve JSEA validation rules, such as: jsea-valid-rules="{minLength:'5', maxLength:'30'}"
 	 * 
 	 * @return
 	 */

@@ -22,6 +22,8 @@ import javax.servlet.jsp.JspException;
 
 import org.springframework.web.servlet.tags.form.TagWriter;
 
+import com.pyrube.one.lang.Strings;
+
 /**
  * JSEA Upload-field element.
  * 
@@ -37,22 +39,49 @@ public class UploadTag extends TextfieldTag {
 	private static final long serialVersionUID = 7965057068008823599L;
 
 	private static final String UPLOAD_TRIGGER_PREFIX = "UPLOAD-TRIGGER-";
+	private static final String UPLOAD_TRIGGER2_PREFIX = "UPLOAD-TRIGGER2-";
 	
-	private String funcname;
-	private String uploadFile = "uploadFile";
-	private boolean uploadable = true;
-	private String progressbarId = "progressbar";
-	private String uploadedFile;
-	private String uploadType = "TPL";
-	private String more = "";
-	private Object mimes; 
-	private String placeholder = "global.placeholder.choose-file";
-	private String onSuccess;
-	
+	private static final String UPLOAD_PROGRESSBAR_PREFIX = "UPLOAD-PROGRESSBAR-";
+
 	/**
-	 * random trigger id
+	 * JSEA Standard Option, uploading mode as below
+	 * posting : form submit
+	 * instant : ajax upload instantly once a file was chosen
+	 * manual  : ajax upload manually by clicking 'Upload' icon
+	 */
+	private String mode = "posting";
+
+	/**
+	 * JSEA Optional Option, to ajax upload
+	 */
+	private String url;
+	private String uploadFile = "uploadFile";
+	private Object mimes;
+
+	/**
+	 * JSEA Optional Option, to ajax upload
+	 */
+	private String more;
+
+	/**
+	 * random trigger id for link: Browse
 	 */
 	private String triggerId;
+
+	/**
+	 * random trigger-2 id for link: Upload
+	 */
+	private String trigger2Id;
+
+	/**
+	 * random progress-bar id
+	 */
+	private String progressbarId;
+
+	/**
+	 * JSEA Event, callback after ajax upload success
+	 */
+	private String onSuccess;
 
 	/**
 	 * @return the jseaAttrOptions
@@ -61,29 +90,44 @@ public class UploadTag extends TextfieldTag {
 	public String getJseaAttrOptions() {
 		return TagConstants.JSEA_ATTR_UPLOAD_OPTIONS;
 	}
-	
-	@Override
-	public String getName() {
-		return this.getUploadFile() + "Path";
-	}
 
 	@Override
 	protected boolean isReadonly() {
 		return true;
 	}
 
-	/**
-	 * @return the funcname
-	 */
-	public String getFuncname() {
-		return funcname;
+	@Override
+	public String getPlaceholder() {
+		String placeholder = super.getPlaceholder();
+		return Strings.isEmpty(placeholder) ? "global.placeholder.choose-file" : placeholder;
 	}
 
 	/**
-	 * @param funcname the funcname to set
+	 * @return the mode
 	 */
-	public void setFuncname(String funcname) {
-		this.funcname = funcname;
+	public String getMode() {
+		return mode;
+	}
+
+	/**
+	 * @param mode the mode to set
+	 */
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+
+	/**
+	 * @return the url
+	 */
+	public String getUrl() {
+		return url;
+	}
+
+	/**
+	 * @param url the url to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	/**
@@ -98,62 +142,6 @@ public class UploadTag extends TextfieldTag {
 	 */
 	public void setUploadFile(String uploadFile) {
 		this.uploadFile = uploadFile;
-	}
-
-	/**
-	 * @return the uploadable
-	 */
-	public boolean isUploadable() {
-		return uploadable;
-	}
-
-	/**
-	 * @param uploadable the uploadable to set
-	 */
-	public void setUploadable(boolean uploadable) {
-		this.uploadable = uploadable;
-	}
-
-	/**
-	 * @return the progressbarId
-	 */
-	public String getProgressbarId() {
-		return progressbarId;
-	}
-
-	/**
-	 * @param progressbarId the progressbarId to set
-	 */
-	public void setProgressbarId(String progressbarId) {
-		this.progressbarId = progressbarId;
-	}
-
-	/**
-	 * @return the uploadedFile
-	 */
-	public String getUploadedFile() {
-		return uploadedFile;
-	}
-
-	/**
-	 * @param uploadedFile the uploadedFile to set
-	 */
-	public void setUploadedFile(String uploadedFile) {
-		this.uploadedFile = uploadedFile;
-	}
-
-	/**
-	 * @return the uploadType
-	 */
-	public String getUploadType() {
-		return uploadType;
-	}
-
-	/**
-	 * @param uploadType the uploadType to set
-	 */
-	public void setUploadType(String uploadType) {
-		this.uploadType = uploadType;
 	}
 
 	/**
@@ -185,17 +173,45 @@ public class UploadTag extends TextfieldTag {
 	}
 
 	/**
-	 * @return the placeholder
+	 * @return the triggerId
 	 */
-	public String getPlaceholder() {
-		return placeholder;
+	public String getTriggerId() {
+		return triggerId;
 	}
 
 	/**
-	 * @param placeholder the placeholder to set
+	 * @param triggerId the triggerId to set
 	 */
-	public void setPlaceholder(String placeholder) {
-		this.placeholder = placeholder;
+	public void setTriggerId(String triggerId) {
+		this.triggerId = triggerId;
+	}
+
+	/**
+	 * @return the trigger2Id
+	 */
+	public String getTrigger2Id() {
+		return trigger2Id;
+	}
+
+	/**
+	 * @param trigger2Id the trigger2Id to set
+	 */
+	public void setTrigger2Id(String trigger2Id) {
+		this.trigger2Id = trigger2Id;
+	}
+
+	/**
+	 * @return the progressbarId
+	 */
+	public String getProgressbarId() {
+		return progressbarId;
+	}
+
+	/**
+	 * @param progressbarId the progressbarId to set
+	 */
+	public void setProgressbarId(String progressbarId) {
+		this.progressbarId = progressbarId;
 	}
 
 	/**
@@ -211,42 +227,33 @@ public class UploadTag extends TextfieldTag {
 	public void setOnSuccess(String onSuccess) {
 		this.onSuccess = onSuccess;
 	}
-
-	/**
-	 * @return the triggerId
-	 */
-	public String getTriggerId() {
-		return triggerId;
-	}
-
-	/**
-	 * @param triggerId the triggerId to set
-	 */
-	public void setTriggerId(String triggerId) {
-		this.triggerId = triggerId;
-	}
 	
 	@Override
-	protected String getDefaultCssClass() { return "upload"; }
+	protected String getDefaultCssClass() { return "upload-value"; }
 	
 	@Override
 	protected void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException {
 		this.setTriggerId(UPLOAD_TRIGGER_PREFIX + UUID.randomUUID().toString());
-		jsob.appendJseaOption("funcname", this.getFuncname())
+		this.setTrigger2Id(UPLOAD_TRIGGER2_PREFIX + UUID.randomUUID().toString());
+		this.setProgressbarId(UPLOAD_PROGRESSBAR_PREFIX + UUID.randomUUID().toString());
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_MODE, this.getMode())
+			.appendJseaOption(TagConstants.JSEA_OPTION_URL, this.getUrl())
 			.appendJseaOption("uploadFile", this.getUploadFile())
-			.appendJseaOption("uploadable", this.isUploadable())
-			.appendJseaOption("uploadedFile", this.getUploadedFile())
-			.appendJseaOption("uploadType", this.getUploadType())
- 			.appendJseaOption("more", "{" + this.getMore() + "}", JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT)
-			.appendJseaOption("triggerId", this.getTriggerId())
-			.appendJseaOption("mimes", this.getMimes(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT)
-			.appendJseaOption("onSuccess", this.getOnSuccess(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_FUNCTION);
+			.appendJseaOption("mimes", this.getMimes(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
+			.appendJseaOption(TagConstants.JSEA_OPTION_MORE, this.getMore(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONSUCCESS, this.getOnSuccess(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption("triggerId", this.getTriggerId());
+		if ("manual".equals(this.getMode())) {
+			jsob.appendJseaOption("hasTrigger2", true);
+			jsob.appendJseaOption("trigger2Id", this.getTrigger2Id());
+		}
+		jsob.appendJseaOption("progressbarId", this.getProgressbarId());
 	}
 
 	@Override
 	protected void appendExtraValidRules(JseaOptionsBuilder jsob) throws JspException {
 		super.appendExtraValidRules(jsob);
-		jsob.appendJseaOption("mimes", this.getMimes(), JseaOptionsBuilder.JSEA_OPTION_TYPE_JS_OBJECT);
+		jsob.appendJseaOption("mimes", this.getMimes(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 	}
 
 	@Override
@@ -254,8 +261,17 @@ public class UploadTag extends TextfieldTag {
 		tagWriter.startTag(TRIGGER_TAG);
 		this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_ID, this.getTriggerId());
 		this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_HREF, "javascript:void(0);");
-		this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_CLASS, "upload");
+		this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_CLASS, "browse");
+		tagWriter.appendValue("&nbsp;");
 		tagWriter.endTag(true);
+		if ("manual".equals(this.getMode())) {
+			tagWriter.startTag(TRIGGER_TAG);
+			this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_ID, this.getTrigger2Id());
+			this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_HREF, "javascript:void(0);");
+			this.writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_CLASS, "upload");
+			tagWriter.appendValue("&nbsp;");
+			tagWriter.endTag(true);
+		}
 	}
-	
+
 }
