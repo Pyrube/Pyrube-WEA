@@ -26,6 +26,7 @@ import com.pyrube.one.app.persistence.Data;
  * @author Aranjuez
  * @version Dec 01, 2009
  * @since Pyrube-WEA 1.0
+ * @deprecated Moved to Pyrube-ONE
  */
 public class Authen extends Data<String> {
 	/**

@@ -31,6 +31,7 @@ import com.pyrube.one.app.user.User;
  * @author Aranjuez
  * @version Dec 01, 2009
  * @since Pyrube-WEA 1.0
+ * @deprecated Moved to Pyrube-ONE
  */
 public class Home extends Data<String> {
 	/**
