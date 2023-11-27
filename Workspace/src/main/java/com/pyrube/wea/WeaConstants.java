@@ -54,6 +54,7 @@ public interface WeaConstants {
 	 */
 	public static final String RESPONSE_HEADER_MESSAGE_CONTAINER = "Message-Container";
 	public static final String RESPONSE_HEADER_MESSAGE_LEVEL = "Message-Level";
+	public static final String RESPONSE_HEADER_TARGET_URL = "Target-Url";
 	
 	/**
 	 * The key for session attribute name of upload progress
@@ -71,7 +72,22 @@ public interface WeaConstants {
 	public static final String SESSION_ATTRNAME_LOCLAE = "WEA.KEY_SESSIONATTRNAME_LOCALE";
 	
 	/**
+	 * The key for session attribute name of current Theme
+	 */
+	public static final String SESSION_ATTRNAME_THEME = "WEA.KEY_SESSIONATTRNAME_THEME";
+	
+	/**
 	 * The key for session attribute name of captcha
 	 */
 	public static final String SESSION_ATTRNAME_CAPTCHA = "WEA.KEY_SESSIONATTRNAME_CAPTCHA";
+	
+	/**
+	 * The key for session attribute name of onboarding for user enrollment
+	 */
+	public static final String SESSION_ATTRNAME_ONBOARDING = "WEA.KEY_SESSIONATTRNAME_ONBOARDING";
+	
+	/**
+	 * The key for user attribute name of home url
+	 */
+	public static final String USER_ATTRNAME_HOME_URL = "WEA.KEY_USERATTRNAME_HOMEURL";
 }

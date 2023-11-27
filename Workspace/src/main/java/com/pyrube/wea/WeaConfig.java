@@ -40,8 +40,12 @@ import com.pyrube.one.lang.Strings;
  * 						<listener class="com.pyrube.wea.sample.listener.SampleSignoffListener"/>
  * 					</signoffListeners>
  *					<localeCookie synchLocaleFromCookie="false">
- *						<name>wafLocale</name>
- *						<!-- default domain is current server name.  you may use the domain or sub-domain of the server.  if attribute useServerDomain = true, then use the domain of the server (for server host.dep.abc.com, domain is .dep.abc.com), or if attribute subDomainLevel(at least 2) is present, then use the sub-domain of the server on the given level (for server host.dep.abc.com, level 2 sub-domain is .abc.com). if both useServerDomain and subDomainLevel present, then use subDomainLevel. -->
+ *						<name>weaLocale</name>
+ *						<!-- default domain is current server name.  you may use the domain or sub-domain of the server. 
+ *						if attribute useServerDomain = true, then use the domain of the server (for server h.wea.pyrube.com, 
+ *						domain is .wea.pyrube.com), or if attribute subDomainLevel(at least 2) is present, then use the sub-domain 
+ *						of the server on the given level (for server h.wea.pyrube.com, level 2 sub-domain is .pyrube.com). 
+ *						if both useServerDomain and subDomainLevel present, then use subDomainLevel. -->
  *						<domain useServerDomain="true" subDomainLevel="2"/>
  *						<!-- path supports variable $[APP_CONTEXT] -->
  *						<path>/</path>
@@ -50,10 +54,15 @@ import com.pyrube.one.lang.Strings;
  *					</localeCookie>
  * 					<cookies>
  * 						<cookie createOnSignon="true" deleteOnSignoff="true" encrypt="true">
- * 							<name>SSO-APP-SIGNOFF-WAF</name>
- * 							<!-- in cookie value you can use $[var] to refer predefined variables: SERVER_URL, SERVER_ROOT, SERVER_PROTOCOL, SERVER_HOST, SERVER_PORT, APP_CONTEXT, TIMESTAMP  -->
+ * 							<name>SSO-APP-SIGNOFF-WEA</name>
+ * 							<!-- in cookie value you can use $[var] to refer predefined variables: SERVER_URL, SERVER_ROOT, 
+ * 							SERVER_PROTOCOL, SERVER_HOST, SERVER_PORT, APP_CONTEXT, TIMESTAMP  -->
  * 							<value>$[SERVER_ROOT]/$[APP_CONTEXT]/signoff.do?reason=sso_signoff&amp;ts=$[TIMESTAMP]</value>
- * 							<!-- default domain is current server name.  you may use the domain or sub-domain of the server.  if attribute useServerDomain = true, then use the domain of the server (for server host.dep.abc.com, domain is .dep.abc.com), or if attribute subDomainLevel(at least 2) is present, then use the sub-domain of the server on the given level (for server host.dep.abc.com, level 2 sub-domain is .abc.com). if both useServerDomain and subDomainLevel present, then use subDomainLevel. -->
+ * 							<!-- default domain is current server name.  you may use the domain or sub-domain of the server. 
+ * 							if attribute useServerDomain = true, then use the domain of the server (for server h.wea.pyrube.com, 
+ * 							domain is .wea.pyrube.com), or if attribute subDomainLevel(at least 2) is present, then use the sub-domain 
+ * 							of the server on the given level (for server h.wea.pyrube.com, level 2 sub-domain is .pyrube.com). 
+ * 							if both useServerDomain and subDomainLevel present, then use subDomainLevel. -->
  * 							<domain useServerDomain="true" subDomainLevel="2"/>
  * 							<path>/</path>
  * 							<!-- maxAge=-1 then set non-persistent cookie. maxAge=0 then delete cookie. -->
@@ -61,11 +70,6 @@ import com.pyrube.one.lang.Strings;
  * 						</cookie>
  * 					</cookies>
  * 				</signon>
- * 				<sso cookieName="wafsso">
- * 					<sessionTimeoutMinutes>60</sessionTimeoutMinutes>
- * 					<sessionTimeoutUrl>/jsp/sso_session_timeout.jsp</sessionTimeoutUrl>
- * 					<sessionErrorUrl>/jsp/sso_session_error.jsp</sessionErrorUrl>
- * 				</sso>
  * 				<captcha enabled="true">
  * 					<codeLength>4</codeLength>
  * 					<mimeType>image/png</mimeType>
@@ -80,22 +84,23 @@ import com.pyrube.one.lang.Strings;
  * 				<useSecureCookie>false</useSecureCookie>
  * 				<!-- Indicates to the browser whether cookies can only be set and retrieved by http server (browser can not view cookie using javascript) -->
  * 				<useHttpOnlyCookie>false</useHttpOnlyCookie>
- *              <!-- whether restrict http request http method -->
- *              <restrictHttpMethod>true</restrictHttpMethod>
+ * 				<!-- whether restrict http request http method -->
+ * 				<restrictHttpMethod>true</restrictHttpMethod>
  * 				<!-- Defense csrf attack -->
- *              <useCsrfValidate>false</useCsrfValidate>
- *              <csrfTokenName>_ct_</csrfTokenName>
+ * 				<useCsrfValidate>false</useCsrfValidate>
+ * 				<csrfTokenName>_ct_</csrfTokenName>
  * 			</security>
- * 			<!-- web application filters -->
- * 			<filters>
- * 				<filter class="com.pyrube.wea.sample.filter.SampleFilter" enabled="false">
- * 					<param name="p1">v1</param>
- * 					<param name="disabledUrls">
- * 						<param name="url">/sample</param>
- * 						<param name="url">/sample1</param>
- * 					</param>
- * 				</filter>
- * 			</filters>
+ * 			<servlet>
+ * 				<theme system="DEFAULT">
+ * 					<names>DEFAULT,DARK</names>
+ * 					<cookie enabled="true">
+ * 						<name>weaTheme</name>
+ * 						<domain useServerDomain="false" />
+ * 						<!-- maxAge=-1 then set non-persistent cookie. maxAge=0 then delete cookie. -->
+ * 						<maxAge>2592000</maxAge>
+ * 					</cookie>
+ * 				</theme>
+ * 			</servlet>
  * 			<pageCharEncoding>UTF-8</pageCharEncoding>
  * 			<defaultHtmlEscaping>true</defaultHtmlEscaping>
  * 		</WeaConfig>
@@ -122,6 +127,14 @@ public class WeaConfig extends Configurator {
 	private Captcha captcha = null;
 
 	/**
+	 * theme configuration
+	 */
+	private String[] themeNames = null;
+	private String defaultThemeName = null;
+	private boolean syncThemeCookie = false;
+	private Cookie themeCookie = null;
+
+	/**
 	 * web page request character encoding.
 	 * null means using default encoding
 	 */
@@ -136,21 +149,6 @@ public class WeaConfig extends Configurator {
 	 * the WEA configurator
 	 */
 	private static WeaConfig weaConfig = null;
-
-	/**
-	 * WAF Filters
-	 */
-	//private List<WafFilterInfo> wafFilters = null;
-
-	/**
-	 * the signon info
-	 */
-	//private SignonInfo signonInfo = null;
-
-	/**
-	 * SSO info
-	 */
-	//private SsoInfo ssoInfo = null;
 	
 	/**
 	 * Indicates to the browser whether cookies should only be sent using a secure protocol, such as HTTPS or SSL
@@ -208,9 +206,11 @@ public class WeaConfig extends Configurator {
 	public void loadConfig(String cfgName, Node cfgNode) throws AppException {
 		// security info
 		obtainSecurityInfo((Element) ConfigManager.getNode(cfgNode, "security"));
+		// servlet info
+		obtainServletInfo((Element) ConfigManager.getNode(cfgNode, "servlet"));
 
-		// obtain waf filters
-		//obtainWafFilters(ConfigManager.getNode(cfgNode, "filters"));
+		// obtain wea filters
+		//obtainWeaFilters(ConfigManager.getNode(cfgNode, "filters"));
 
 		// Resolve Web Page Character encoding
 		pageCharEncoding = ConfigManager.getSingleValue(cfgNode, "pageCharEncoding");
@@ -234,74 +234,6 @@ public class WeaConfig extends Configurator {
 	private void obtainSecurityInfo(Element ctx) throws AppException {
 		try {
 			if (ctx == null) throw new AppException("message.error.wea.security.not-configured");
-			/**
-			Element signonElm = (Element) ConfigManager.getNode(ctx, "signon");
-			signonInfo = new SignonInfo();
-			//signonInfo.setSignonRequired(signonRequired);
-			signonInfo.setWafCookieName(ConfigManager.getAttributeValue(signonElm, "wafCookieName"));
-			String ckPath = ConfigManager.getAttributeValue(signonElm, "wafCookiePath");
-			if (ckPath != null && ckPath.length() > 0) signonInfo.setWafCookiePath(ckPath);
-			signonInfo.setSignonListenerClassNames(obtainSignonOffListeners(ConfigManager.getNode(signonElm, "signonListeners")));
-			signonInfo.setSignoffListenerClassNames(obtainSignonOffListeners(ConfigManager.getNode(signonElm, "signoffListeners")));
-
-			Element extSignoffInfoElm = (Element) ConfigManager.getNode(signonElm, "externalSsoSignoffUrl");
-			boolean extSignoffRedir = Boolean.valueOf(ConfigManager.getSingleValue(extSignoffInfoElm, "redirectToUrl")).booleanValue();
-			String extSignoffTsName = null;
-			if (Boolean.valueOf(ConfigManager.getSingleValue(extSignoffInfoElm, "addTimestampToUrl")).booleanValue()) {
-				extSignoffTsName = ConfigManager.getAttributeValue(extSignoffInfoElm, "addTimestampToUrl", "tsName");
-				if (extSignoffTsName != null) extSignoffTsName = extSignoffTsName.trim();
-				if (extSignoffTsName == null || extSignoffTsName.length() == 0) extSignoffTsName = "_ts";
-			}
-			String extSignoffDefUrl = ConfigManager.getSingleValue(extSignoffInfoElm, "url");
-			String extSignonDefUrl = ConfigManager.getSingleValue(extSignoffInfoElm, "signonUrl");
-			String extSignoffIdent = ConfigManager.getSingleValue(extSignoffInfoElm, "identifiedUrls/identifierClass");
-			Map extSignoffParms = ConfigManager.getDeepParams(ConfigManager.getNode(extSignoffInfoElm, "identifiedUrls"));
-			signonInfo.setExternalSsoSignoffUrl(extSignoffRedir, extSignoffTsName, extSignoffDefUrl, extSignonDefUrl, extSignoffIdent, extSignoffParms);
-			
-			String lckSynch = ConfigManager.getAttributeValue(signonElm, "localeCookie", "synchLocaleFromCookie");
-			if (lckSynch == null || lckSynch.length() == 0) lckSynch = "true";
-			signonInfo.setSynchCookieLocale(Boolean.valueOf(lckSynch).booleanValue());
-			String lckName = ConfigManager.getSingleValue(signonElm, "localeCookie/name");
-			String lckServerDomain = ConfigManager.getAttributeValue(signonElm, "localeCookie/domain", "useServerDomain");
-			String lckDomainLevel = ConfigManager.getAttributeValue(signonElm, "localeCookie/domain", "subDomainLevel");
-			String lckPath = ConfigManager.getSingleValue(signonElm, "localeCookie/path");
-			String lckMaxAge = ConfigManager.getSingleValue(signonElm, "localeCookie/maxAge");
-			if (lckName == null || lckName.length() == 0) lckName = signonInfo.getWafCookieName() + "Locale";
-			CookieInfo localeCookieInfo = new CookieInfo(lckName, "");
-			if (lckServerDomain != null) localeCookieInfo.setUseServerDomain(Boolean.valueOf(lckServerDomain).booleanValue());
-			if (lckDomainLevel != null) localeCookieInfo.setSubDomainLevel(Integer.parseInt(lckDomainLevel));
-			if (lckPath == null || lckPath.length() == 0) lckPath = "/";
-			localeCookieInfo.setPath(lckPath);
-			if (lckMaxAge == null) {
-				localeCookieInfo.setMaxAge(30 * 24 * 60 * 60);
-			} else {
-				localeCookieInfo.setMaxAge(Integer.parseInt(lckMaxAge));
-			}
-			signonInfo.setWafLocaleCookieInfo(localeCookieInfo);
-			
-			signonInfo.setCookies(obtainSignonCookies(ConfigManager.getNode(signonElm, "cookies")));
-
-			Element wlInfoCollElm = (Element) ConfigManager.getNode(signonElm, "whiteLabelInfoCollector");
-			if(wlInfoCollElm != null){
-				signonInfo.setWLInfoCollClass(ConfigManager.getAttributeValue(wlInfoCollElm, "class"));
-				signonInfo.setWLInfoCollParams(ConfigManager.getDeepParams(wlInfoCollElm));
-			}
-			
-			ssoInfo = new SsoInfo();
-			Element ssoElm = (Element) ConfigManager.getNode(ctx, "sso");
-			ssoInfo.setCookieName(ConfigManager.getAttributeValue(ssoElm, "cookieName"));
-			//ssoInfo.setCookieDomain(ConfigManager.getSingleValue(ssoElm, "cookieDomain"));
-			ssoInfo.setSessionTimeoutUrl(ConfigManager.getSingleValue(ssoElm, "sessionTimeoutUrl"));
-			ssoInfo.setSessionErrorUrl(ConfigManager.getSingleValue(ssoElm, "sessionErrorUrl"));
-			String tmpStr = ConfigManager.getSingleValue(ssoElm, "sessionTimeoutMinutes");
-			if (tmpStr != null && tmpStr.length() > 0) {
-				try {	// in Minutes, convert it to milliseconds
-					ssoInfo.setSessionTimeout(Integer.parseInt(tmpStr) * 60000L);
-				} catch (Exception e) {
-					logger.warn("invalid sso session timeout (" + tmpStr + "). default timeout value will be used.");
-				}
-			}
-			*/
 			Element captchaElm = (Element) ConfigManager.getNode(ctx, "captcha");
 			if (captchaElm != null) {
 				captcha = new Captcha();
@@ -327,112 +259,28 @@ public class WeaConfig extends Configurator {
 	}
 
 	/**
-	 * obtain listeners
-	 * @return String[]
+	 * obtain servlet info
 	 */
-	/**private String[] obtainSignonOffListeners(Node ctx) throws Exception {
-		if (ctx == null) return(null);
-		String[] lsns = null;
-		NodeList nl = ConfigManager.getNodeList(ctx, "listener");
-		if (nl != null && nl.getLength() > 0) {
-			ArrayList<String> list = new ArrayList<String>();
-			for (int i = 0; i < nl.getLength(); ++i) {
-				String clsName = ConfigManager.getAttributeValue((Element) nl.item(i), "class");
-				if (clsName != null && clsName.length() > 0) list.add(clsName);
-			}
-			if (list.size() > 0) {
-				lsns = new String[list.size()];
-				list.toArray(lsns);
-			}
-		}
-		return(lsns);
-	}*/
-	
-	/**
-	 * obtain the cookies info
-	 * @param ctx
-	 * @return
-	 */
-	/**private CookieInfo[] obtainSignonCookies(Node ctx) throws Exception {
-		if (ctx == null) return(null);
-		CookieInfo[] cks = null;
-		NodeList nl = ConfigManager.getNodeList(ctx, "cookie");
-		if (nl != null && nl.getLength() > 0) {
-			ArrayList list = new ArrayList();
-			for (int i = 0; i < nl.getLength(); ++i) {
-				Element nod = (Element) nl.item(i);
-				boolean createOnSignon = Boolean.valueOf(ConfigManager.getAttributeValue(nod, "createOnSignon")).booleanValue();
-				boolean deleteOnSignoff = Boolean.valueOf(ConfigManager.getAttributeValue(nod, "deleteOnSignoff")).booleanValue();
-				boolean encrypt = Boolean.valueOf(ConfigManager.getAttributeValue(nod, "encrypt")).booleanValue();
-				String name = ConfigManager.getSingleValue(nod, "name");
-				String value = ConfigManager.getSingleValue(nod, "value");
-				String path = ConfigManager.getSingleValue(nod, "path");
-				String ageStr = ConfigManager.getSingleValue(nod, "maxAge");
-				String serverDomain = ConfigManager.getAttributeValue(nod, "domain", "useServerDomain");
-				String domainLevel = ConfigManager.getAttributeValue(nod, "domain", "subDomainLevel");
-				
-				if (name != null && value != null) {
-					CookieInfo ck = new CookieInfo(name, value);
-					ck.setCreateOnSignon(createOnSignon);
-					ck.setDeleteOnSignoff(deleteOnSignoff);
-					ck.setEncrypted(encrypt);
-					if (path != null) ck.setPath(path);
-					if (ageStr != null) {
-						try {
-							ck.setMaxAge(Integer.parseInt(ageStr));
-						} catch (Exception e) {
-							logger.warn("invalid cookie age. default will be used.");
-						}
-					}
-					if (serverDomain != null) ck.setUseServerDomain(Boolean.valueOf(serverDomain).booleanValue());
-					if (domainLevel != null) {
-						try {
-							ck.setSubDomainLevel(Integer.parseInt(domainLevel));
-						} catch (Exception e) {
-							logger.warn("invalid sub-domain level. default will be used.");
-						}
-					}
-					list.add(ck);
-				}
-			}
-			if (list.size() > 0) {
-				cks = new CookieInfo[list.size()];
-				list.toArray(cks);
-			}
-		}
-		return(cks);
-	}*/
-	
-	/**
-	 * obtain filters info
-	 */
-	/**private void obtainWafFilters(Node ctx) throws Exception {
+	private void obtainServletInfo(Element ctx) throws AppException {
 		try {
-			if (ctx == null) return;
-			boolean enabled = true;
-			String enStr = ConfigManager.getAttributeValue((Element)ctx, "enabled");
-			if (enStr != null && enStr.length() > 0) enabled = Boolean.valueOf(enStr).booleanValue();
-			NodeList fNodes = ConfigManager.getNodeList(ctx, "filter");
-			if (enabled && fNodes != null && fNodes.getLength() > 0) {
-				List<WafFilterInfo> filters = new ArrayList<WafFilterInfo>();
-				for (int i = 0; i < fNodes.getLength(); ++i) {
-					enabled = true;
-					enStr = ConfigManager.getAttributeValue((Element)fNodes.item(i), "enabled");
-					if (enStr != null && enStr.length() > 0) enabled = Boolean.valueOf(enStr).booleanValue();
-					String clsName = ConfigManager.getAttributeValue((Element)fNodes.item(i), "class");
-					if (enabled && clsName != null && clsName.length() > 0) {
-						Map<String, ?> props = ConfigManager.getDeepParams(fNodes.item(i));
-						filters.add(new WafFilterInfo(clsName, props));
-					}
-				}
-				if (filters.size() > 0) wafFilters = filters;
+			if (ctx == null) throw new AppException("message.error.wea.servlet.not-configured");
+			Element themeElm = (Element) ConfigManager.getNode(ctx, "theme");
+			if (themeElm != null) {
+				defaultThemeName = ConfigManager.getAttributeValue(themeElm, "system");
+				themeNames = ConfigManager.getSingleValue(themeElm, "names").split(",");
+				syncThemeCookie = Boolean.valueOf(ConfigManager.getAttributeValue(themeElm, "cookie", "enabled")).booleanValue();
+				themeCookie = new Cookie();
+				themeCookie.setName(ConfigManager.getSingleValue(themeElm, "cookie/name"));
+				themeCookie.setUseServerDomain(Boolean.valueOf(ConfigManager.getAttributeValue(themeElm, "cookie/domain", "useServerDomain")).booleanValue());
+				themeCookie.setPath(ConfigManager.getSingleValue(themeElm, "cookie/path"));
+				themeCookie.setMaxAge(Integer.parseInt(ConfigManager.getSingleValue(themeElm, "cookie/maxAge")));
 			}
 		} catch (Exception e) {
 			logger.error("error", e);
 			throw e;
 		}
-	}*/
-	
+	}
+
 	/**
 	 * get attribute manager class name
 	 * @return the attribute manager class name
@@ -440,7 +288,7 @@ public class WeaConfig extends Configurator {
 	public String getAttributeManagerClassName() {
 		return (attrMgrClassName);
 	}
-	
+
 	/**
 	 * @return the captcha
 	 */
@@ -449,10 +297,39 @@ public class WeaConfig extends Configurator {
 	}
 
 	/**
-	 * get whether the cookie should only be sent using a secure protocol, such as HTTPS or SSL
+	 * @return the themeNames
+	 */
+	public String[] getThemeNames() {
+		return themeNames;
+	}
+
+	/**
+	 * @return the defaultThemeName
+	 */
+	public String getDefaultThemeName() {
+		return defaultThemeName;
+	}
+
+	/**
+	 * returns whether the theme is synchronized to cookie
 	 * @return
 	 */
-	public boolean isSecureCookie() {
+	public boolean isThemeCookieEnabled() {
+		return(syncThemeCookie);
+	}
+
+	/**
+	 * @return the themeCookie
+	 */
+	public Cookie getThemeCookie() {
+		return(themeCookie);
+	}
+
+	/**
+	 * returns whether the cookie should only be sent using a secure protocol, such as HTTPS or SSL
+	 * @return
+	 */
+	public boolean isCookieSecure() {
 		return(useSecureCookie);
 	}
 	
@@ -460,7 +337,7 @@ public class WeaConfig extends Configurator {
 	 * return whether cookies can only be set and retrieved by HTTP server
 	 * @return
 	 */
-	public boolean isHttpOnlyCookie() {
+	public boolean isCookieHttpOnly() {
 		return(useHttpOnlyCookie);
 	}
 	
@@ -468,7 +345,7 @@ public class WeaConfig extends Configurator {
 	 * return whether it is restrict HTTP method
 	 * @return
 	 */
-	public boolean isRestrictHttpMethod() {
+	public boolean isHttpMethodRestrict() {
 		return(restrictHttpMethod);
 	}
 	
@@ -489,14 +366,6 @@ public class WeaConfig extends Configurator {
 	}
 
 	/**
-	 * get Waf Filters.
-	 * @return List the list of WafFilterInfo
-	 */
-	//public List<WafFilterInfo> getWafFilters() {
-	//	return(wafFilters);
-	//}
-
-	/**
 	 * get the pageCharEncoding of the http request
 	 * @return String
 	 */
@@ -513,21 +382,11 @@ public class WeaConfig extends Configurator {
 	}
 
 	/**
-	 * get signon info
-	 * @return SignonInfo
+	 * Captcha Data
+	 * @author Aranjuez
+	 * @version Dec 01, 2009
+	 * @since Pyrube-WEA 1.0
 	 */
-	//public SignonInfo getSignonInfo() {
-	//	return(signonInfo);	
-	//}
-	
-	/**
-	 * get SSO info
-	 * @return SsoInfo
-	 */
-	//public SsoInfo getSsoInfo() {
-	//	return(ssoInfo);	
-	//}
-	
 	public class Captcha {
 		
 		/**
@@ -703,5 +562,224 @@ public class WeaConfig extends Configurator {
 			this.availableChars = availableChars;
 		}
 	}
-	
+
+	/**
+	 * Cookie Data
+	 * @author Aranjuez
+	 * @version Oct 01, 2023
+	 * @since Pyrube-WEA 1.1
+	 */
+	public class Cookie {
+
+		/**
+		 * the cookie name
+		 */
+		private String name = null;
+
+		/**
+		 * the cookie value
+		 */	
+		private String value = null;
+
+		/**
+		 * the full server host name such as svr1.pyrube.com
+		 */
+		private String serverHost = null;
+
+		/**
+		 * cookie domain. Default domain is current server name.  
+		 * you may use the domain or sub-domain of the server.  
+		 * if useServerDomain = true, then use the domain of the 
+		 * server (for server h.wea.pyrube.com, domain is .wea.pyrube.com), 
+		 * or if subDomainLevel(at least 2) is present, then use the 
+		 * sub-domain of the server on the given level (for server 
+		 * h.wea.pyrube.com, level 2 sub-domain is .pyrube.com). 
+		 * if both useServerDomain and subDomainLevel present, then use 
+		 * subDomainLevel.
+		 */	
+		private boolean useServerDomain = false;
+
+		/**
+		 * if use server domain, this is sub-domain level. if it is less than 2, then ignore it.
+		 */	
+		private int subDomainLevel = 0;
+
+		/**
+		 * cookie path. default is /
+		 */	
+		private String path = "/";
+
+		/**
+		 * maximum age of the cookie. 
+		 * If maxAge = -1 then set non-persistent cookie. 
+		 * maxAge=0 then delete cookie.
+		 */	
+		private int maxAge = -1;
+
+		/**
+		 * whether value need to be encrypted
+		 */
+		private boolean encrypted = false;
+			
+		/**
+		 * constructor
+		 */
+		public Cookie() {
+		}
+
+		/**
+		 * constructor
+		 */
+		public Cookie(String name, String value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		/**
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * @param name the name to set
+		 */
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		/**
+		 * @return the value
+		 */
+		public String getValue() {
+			return value;
+		}
+
+		/**
+		 * @param value the value to set
+		 */
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+		/**
+		 * @return the serverHost
+		 */
+		public String getServerHost() {
+			return serverHost;
+		}
+
+		/**
+		 * @param serverHost the serverHost to set
+		 */
+		public void setServerHost(String serverHost) {
+			this.serverHost = serverHost;
+		}
+
+		/**
+		 * @return the useServerDomain
+		 */
+		public boolean doesUseServerDomain() {
+			return useServerDomain;
+		}
+
+		/**
+		 * @param useServerDomain the useServerDomain to set
+		 */
+		public void setUseServerDomain(boolean useServerDomain) {
+			this.useServerDomain = useServerDomain;
+		}
+
+		/**
+		 * @return the subDomainLevel
+		 */
+		public int getSubDomainLevel() {
+			return subDomainLevel;
+		}
+
+		/**
+		 * @param subDomainLevel the subDomainLevel to set
+		 */
+		public void setSubDomainLevel(int subDomainLevel) {
+			this.subDomainLevel = subDomainLevel;
+		}
+
+		/**
+		 * @return the path
+		 */
+		public String getPath() {
+			return path;
+		}
+
+		/**
+		 * @param path the path to set
+		 */
+		public void setPath(String path) {
+			this.path = path;
+		}
+
+		/**
+		 * @return the maxAge
+		 */
+		public int getMaxAge() {
+			return maxAge;
+		}
+
+		/**
+		 * @param maxAge the maxAge to set
+		 */
+		public void setMaxAge(int maxAge) {
+			this.maxAge = maxAge;
+		}
+
+		/**
+		 * @return the encrypted
+		 */
+		public boolean isEncrypted() {
+			return encrypted;
+		}
+
+		/**
+		 * @param encrypted the encrypted to set
+		 */
+		public void setEncrypted(boolean encrypted) {
+			this.encrypted = encrypted;
+		}
+
+		/**
+		 * returns the actual cookie domain. 
+		 * Default domain is current server name.  
+		 * you may use the domain or sub-domain of the server.  
+		 * if useServerDomain = true, then use the domain of the 
+		 * server (for server h.wea.pyrube.com, domain is .wea.pyrube.com), 
+		 * or if subDomainLevel(at least 2) is present, then use the 
+		 * sub-domain of the server on the given level (for server 
+		 * h.wea.pyrube.com, level 2 sub-domain is .pyrube.com). 
+		 * if both useServerDomain and subDomainLevel present, then use 
+		 * subDomainLevel.
+		 * 
+		 * @return the domain, null if use default domain
+		 */
+		public String resolveDomain() {
+			if (serverHost == null || serverHost.length() < 2) return(null);
+			if (!useServerDomain) return(null);
+			int iPos = 0;
+			iPos = serverHost.indexOf('.');
+			if (iPos < 0) return(null);	// use the default
+			String domain = serverHost.substring(iPos);	// domain includes the first dot (.)
+			if (subDomainLevel >= 2) {
+				iPos = domain.length();
+				for (int i = 0; i < subDomainLevel; ++i) {
+					iPos = domain.lastIndexOf('.', iPos - 1);
+					if (iPos <= 0) {
+						break;
+					}
+				}
+				if (iPos > 0) domain = domain.substring(iPos);
+			}
+			return(domain);
+		}
+	}
+
 }
