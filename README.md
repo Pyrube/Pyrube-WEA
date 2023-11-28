@@ -5,4 +5,4 @@ Pyrube-WEA is a framework of JAVA-based APIs for WEB based on Spring-MVC, Spring
 # Sample List - WEB Page on Laptop
 ![SampleList_Laptop](https://github.com/Pyrube/Pyrube-WEA/assets/141699844/d16ccfaa-1fdc-452c-ab39-c893fc969e34)
 # Sample List - WEB Page on Mobile
-![SampleList_Mobile](https://github.com/Pyrube/Pyrube-WEA/assets/141699844/fa5da856-6f98-4f53-9521-654bdc7c1b41)
+![SampleList_Mobile](https://github.com/Pyrube/Pyrube-WEA/assets/141699844/45c9cb55-63df-442a-ae49-c9aa9b438844)
