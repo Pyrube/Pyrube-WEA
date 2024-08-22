@@ -18,15 +18,16 @@ package com.pyrube.wea.format.converters.in;
 
 import java.text.DecimalFormat;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 
 import com.pyrube.one.app.AppException;
-import com.pyrube.one.app.i18n.format.FormatManager;
+import com.pyrube.one.app.Apps;
+import com.pyrube.one.app.i18n.format.annotations.Converting;
 import com.pyrube.one.app.logging.Logger;
+import com.pyrube.one.lang.Strings;
 import com.pyrube.wea.context.WebContextHolder;
 
 /**
@@ -37,73 +38,39 @@ import com.pyrube.wea.context.WebContextHolder;
  * @since Pyrube-WEA 1.0
  */
 public class DoubleConverter implements GenericConverter {
-	
+
 	/**
 	 * logger
 	 */
 	private static Logger logger = Logger.getInstance(DoubleConverter.class.getName());
-	
+
 	@Override
 	public Set<ConvertiblePair> getConvertibleTypes() {
 		Set<ConvertiblePair> pairs = new HashSet<ConvertiblePair>();
-		pairs.add(new ConvertiblePair(String.class, double.class));
+		pairs.add(new ConvertiblePair(String.class, Double.TYPE));
 		pairs.add(new ConvertiblePair(String.class, Double.class));
 		pairs.add(new ConvertiblePair(String.class, double[].class));
 		pairs.add(new ConvertiblePair(String.class, Double[].class));
 		return pairs;
 	}
-	
+
 	@Override
-	public Object convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (value == null || sourceType == null || targetType == null) {
-			return null;
+	public Double convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (value == null) return null;
+		String source = (String) value;
+		if (Strings.isEmpty(source)) return (Double.TYPE == targetType.getType()) ? 0.0D : null;
+		try {
+			Number target = null;
+			String localeCode = WebContextHolder.getWebContext().getLocale().toString();
+			Converting converting = targetType.getAnnotation(Converting.class);
+			String formatName = (converting == null) ? Apps.i18n.format.name.FLOAT : converting.format().getName();
+			DecimalFormat format = (DecimalFormat) Apps.a.number.format.of(localeCode, formatName).value();
+			target = format.parse(source);
+			return(target.doubleValue());
+		} catch (Exception e) {
+			logger.error("Failed to convert '" + value + "' to a double.", e);
+			throw new AppException("message.error.number-converting", value);
 		}
-		Locale locale = WebContextHolder.getWebContext().getLocale();
-		DecimalFormat format = (DecimalFormat) FormatManager.numberFormatOf(locale.toString(), FormatManager.NFN_FLOAT);
-		if (targetType.getType() == double.class || targetType.getType() == Double.class) {
-			if (targetType.getType() == double.class) {
-				if (((String)value).length() == 0) {
-					return (double)0;
-				}
-			} else if (targetType.getType() == Double.class) {
-				if (((String)value).length() == 0) {
-					return null;
-				}
-			}
-			try {
-				Number number = format.parse((String) value);
-				return (number.doubleValue());
-			} catch (Exception e) {
-				logger.error("Failed to convert '" + value + "' to a double.", e);
-				throw new AppException("message.error.number-converting", value);
-			}
-		} else if(targetType.getType() == double[].class || targetType.getType() == Double[].class) {
-			if (((String)value).length() == 0) {
-				return null;
-			}
-			if (targetType.getType() == double[].class) {
-				try {
-					double[] doubles = new double[1];
-					Number number = format.parse((String) value);
-					doubles[0] = number.doubleValue();
-					return (doubles);
-				} catch (Exception e) {
-					logger.error("Failed to convert '" + value + "' to a double.", e);
-					throw new AppException("message.error.number-converting", value);
-				}
-			} else if (targetType.getType() == Double[].class) {
-				try {
-					Double[] doubles = new Double[1];
-					Number number = format.parse((String) value);
-					doubles[0] = number.doubleValue();
-					return (doubles);
-				} catch (Exception e) {
-					logger.error("Failed to convert '" + value + "' to a double.", e);
-					throw new AppException("message.error.number-converting", value);
-				}
-			}
-		}
-		return null;
 	}
-	
+
 }

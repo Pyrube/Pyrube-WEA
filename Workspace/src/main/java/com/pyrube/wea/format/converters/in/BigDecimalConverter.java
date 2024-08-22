@@ -19,15 +19,16 @@ package com.pyrube.wea.format.converters.in;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 
 import com.pyrube.one.app.AppException;
-import com.pyrube.one.app.i18n.format.FormatManager;
+import com.pyrube.one.app.Apps;
+import com.pyrube.one.app.i18n.format.annotations.Converting;
 import com.pyrube.one.app.logging.Logger;
+import com.pyrube.one.lang.Strings;
 import com.pyrube.wea.context.WebContextHolder;
 
 /**
@@ -38,7 +39,7 @@ import com.pyrube.wea.context.WebContextHolder;
  * @since Pyrube-WEA 1.0
  */
 public class BigDecimalConverter implements GenericConverter {
-	
+
 	/**
 	 * logger
 	 */
@@ -53,39 +54,23 @@ public class BigDecimalConverter implements GenericConverter {
 	}
 
 	@Override
-	public Object convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (value == null || sourceType == null || targetType == null) {
-			return null;
+	public BigDecimal convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (value == null) return null;
+		String source = (String) value;
+		if (Strings.isEmpty(source)) return null;
+		try {
+			Number target = null;
+			String localeCode = WebContextHolder.getWebContext().getLocale().toString();
+			Converting converting = targetType.getAnnotation(Converting.class);
+			String formatName = (converting == null) ? Apps.i18n.format.name.MONEY : converting.format().getName();
+			DecimalFormat format = (DecimalFormat) Apps.a.number.format.of(localeCode, formatName).value();
+			format.setParseBigDecimal(true);
+			target = format.parse(source);
+			return (BigDecimal) target;
+		} catch (Exception e) {
+			logger.error("Failed to convert '" + value + "' to a big decimal.", e);
+			throw new AppException("message.error.number-converting", value);
 		}
-		Locale locale = WebContextHolder.getWebContext().getLocale();
-		DecimalFormat format = (DecimalFormat) FormatManager.numberFormatOf(locale.toString(), FormatManager.NFN_MONEY);
-		format.setParseBigDecimal(true);
-		if (targetType.getType() == BigDecimal.class) {
-			if (((String) value).length() == 0) {
-				return null;
-			}
-			try {
-				Number decimal = format.parse((String) value);
-				return (BigDecimal) decimal;
-			} catch (Exception e) {
-				logger.error("Failed to convert '" + value + "' to a big decimal.", e);
-				throw new AppException("message.error.number-converting", value);
-			}
-		} else if (targetType.getType() == BigDecimal[].class) {
-			if (((String) value).length() == 0) {
-				return null;
-			}
-			try {
-				BigDecimal[] decimals = new BigDecimal[1];
-				Number decimal = format.parse((String) value);
-				decimals[0] =  (BigDecimal) decimal;
-				return (decimals);
-			} catch (Exception e) {
-				logger.error("Failed to convert '" + value + "' to a big decimal.", e);
-				throw new AppException("message.error.number-converting", value);
-			}
-		}
-		return null;
 	}
 
 }
