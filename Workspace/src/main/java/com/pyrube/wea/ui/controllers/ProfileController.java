@@ -90,9 +90,9 @@ public class ProfileController extends WeaController {
 	}
 
 	@ResponseBody
-	@RequestMapping("nav")
-	public List<MenuItem> myLevel1NavItems() {
-		return Weas.mySubmenuItems(MenuItem.NAV_ROOT, MenuItem.NAV_ROOT.getId());
+	@RequestMapping("nav/{id}")
+	public List<MenuItem> mySubnavItems(@PathVariable String id) {
+		return Weas.mySubmenuItems(MenuItem.NAV_ROOT, id);
 	}
 
 	@ResponseBody
