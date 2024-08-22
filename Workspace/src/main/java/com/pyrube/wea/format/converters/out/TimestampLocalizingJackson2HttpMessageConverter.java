@@ -50,6 +50,7 @@ import com.pyrube.wea.context.WebContextHolder;
  * @author Aranjuez
  * @version Dec 01, 2009
  * @since Pyrube-WEA 1.0
+ * @deprecated use <code>LocalizingJackson2HttpMessageConverter</code> instead
  */
 public class TimestampLocalizingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
 	/**
