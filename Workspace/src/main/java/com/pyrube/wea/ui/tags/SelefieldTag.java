@@ -362,7 +362,7 @@ public class SelefieldTag extends TextfieldTag implements OptionAware {
 				String labelProperty = (getItemLabel() != null ?
 						ObjectUtils.getDisplayString(evaluate("itemLabel", getItemLabel())) : null);
 				WeaOptionWriter optionWriter =
-						new WeaOptionWriter(itemsObject, (Strings.isEmpty(this.getPath())) ? null : getBindStatus(), valueProperty, labelProperty, "select-options", isHtmlEscape()) {
+						new WeaOptionWriter(itemsObject, (Strings.isEmpty(this.getPath())) ? null : getBindStatus(), valueProperty, labelProperty, "select-option", isHtmlEscape()) {
 							@Override
 							protected String processOptionValue(String resolvedValue) {
 								return processFieldValue(selectName, resolvedValue, "option");
