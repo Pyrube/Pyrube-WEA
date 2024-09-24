@@ -114,6 +114,11 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	private String jseaAttrValidRules = TagConstants.JSEA_ATTR_VALID_RULES;
 
 	/**
+	 * JSEA Event Attribute. Method invoked when the default/specified event is triggered.
+	 */
+	private String method;
+
+	/**
 	 * @return the tagWriter
 	 */
 	public TagWriter getTagWriter() {
@@ -274,6 +279,20 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
+	 * @return the method
+	 */
+	public String getMethod() {
+		return method;
+	}
+
+	/**
+	 * @param method the method to set
+	 */
+	public void setMethod(String method) {
+		this.method = method;
+	}
+
+	/**
 	 * Decides whether label/wrapping renders
 	 */
 	protected void decideWrapping() {
@@ -417,6 +436,7 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder().setRenderingWithBraces(renderingWithBraces);
 		appendJseaDefaultOptions(jsob);
 		appendJseaOptions(jsob);
+		appendJseaEventOptions(jsob);
 		return jsob.toString();
 	}
 
@@ -441,6 +461,19 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 * @throws JspException
 	 */
 	protected void appendJseaOptions(JseaOptionsBuilder jsob) throws JspException {}
+
+	/**
+	 * appends the event option set of JSEA Options to the given JseaOptionsBuilder.
+	 * further abstract sub-classes should override this method to add in any additional 
+	 * default options but must remember to call the super method.
+	 * concrete sub-classes should call this method when/if they want to render event
+	 * options.
+	 * @param jsob JseaOptionsBuilder
+	 * @throws JspException
+	 */
+	protected void appendJseaEventOptions(JseaOptionsBuilder jsob) throws JspException {
+		jsob.appendJseaOption(TagConstants.JSEA_OPTION_METHOD, getMethod(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+	}
 
 	/**
 	 * writes JSEA options attribute

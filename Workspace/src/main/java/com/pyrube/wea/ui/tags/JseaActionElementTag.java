@@ -49,7 +49,6 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	private String confirm;
 	private String reason;
 	private String yesno;
-	private String method;
 	private String callback;
 	private boolean dors;
 	private boolean toggleable;
@@ -167,20 +166,6 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	public void setYesno(String yesno) {
 		this.yesno = yesno;
 	}
-	
-	/**
-	 * @return the method
-	 */
-	public String getMethod() {
-		return method;
-	}
-
-	/**
-	 * @param method the method to set
-	 */
-	public void setMethod(String method) {
-		this.method = method;
-	}
 
 	/**
 	 * @return the callback
@@ -188,6 +173,7 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 	public String getCallback() {
 		return callback;
 	}
+
 	/**
 	 * @param callback
 	 *        the callback to set
@@ -286,7 +272,6 @@ public abstract class JseaActionElementTag extends AccessControllingTag {
 			.appendJseaOption(TagConstants.JSEA_OPTION_CONFIRM, getConfirm())
 			.appendJseaOption(TagConstants.JSEA_OPTION_REASON, getReason())
 			.appendJseaOption(TagConstants.JSEA_OPTION_YESNO, getYesno())
-			.appendJseaOption(TagConstants.JSEA_OPTION_METHOD, getMethod(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
 			.appendJseaOption(TagConstants.JSEA_OPTION_CALLBACK, getCallback(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
 			.appendJseaOption(TagConstants.JSEA_OPTION_DORS, isDors())
 			.appendJseaOption(TagConstants.JSEA_OPTION_TOGGLEABLE, isToggleable());
