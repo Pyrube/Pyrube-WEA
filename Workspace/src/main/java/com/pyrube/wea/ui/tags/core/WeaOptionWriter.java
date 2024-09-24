@@ -16,6 +16,8 @@
 
 package com.pyrube.wea.ui.tags.core;
 
+import java.math.BigInteger;
+import java.text.Format;
 import java.util.Collection;
 import java.util.Map;
 
@@ -27,8 +29,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.support.BindStatus;
 import org.springframework.web.servlet.tags.form.TagWriter;
+import org.springframework.web.util.HtmlUtils;
 
+import com.pyrube.one.app.Apps;
 import com.pyrube.one.lang.Strings;
+import com.pyrube.wea.context.WebContextHolder;
 
 /**
  * This class is revised based on the class from spring mvc.
@@ -245,9 +250,50 @@ public class WeaOptionWriter {
 	 * HTML-escaped as required.
 	 */
 	private String getDisplayString(Object value) {
-		//PropertyEditor editor = (value != null ? this.bindStatus.findEditor(value.getClass()) : null);
-		//return ValueFormatter.getDisplayString(value, editor, this.htmlEscape);
-		return (String)value;
+		String localeCode = WebContextHolder.getWebContext().getLocale().toString();
+		return htmlEscape(formatValue(localeCode, null, value));
+	}
+
+	/**
+	 * Format the corresponding value
+	 * @param localeCode
+	 * @param nameOrPattern
+	 * @param unformated
+	 * @return
+	 */
+	private String formatValue(String localeCode, String nameOrPattern, Object unformated) {
+		if (unformated instanceof String) {
+			return (String) unformated;
+		}
+		Format format = null;
+		if (unformated instanceof Number) {
+			if (Strings.isEmpty(nameOrPattern)) {
+				if ((unformated instanceof Byte)
+						|| (unformated instanceof Short)
+						|| (unformated instanceof Integer)
+						|| (unformated instanceof Long)
+						|| (unformated instanceof BigInteger)) {
+					nameOrPattern = Apps.i18n.format.name.INTEGER;
+				} else {
+					nameOrPattern = Apps.i18n.format.name.FLOAT;
+				}
+			}
+			format = Apps.a.number.format.of(localeCode, nameOrPattern).value();
+		}
+		return format != null ? format.format(unformated) : unformated != null ? (String) unformated : Strings.EMPTY;
+	}
+	
+	/**
+	 * HTML-encodes the given String, only if the "htmlEscape" setting is enabled.
+	 * @param unescaped
+	 * @return
+	 */
+	private String htmlEscape(String unescaped) {
+		String s = unescaped;
+		if (this.htmlEscape) {
+			s = HtmlUtils.htmlEscape(unescaped);
+		}
+		return s;
 	}
 
 	/**
