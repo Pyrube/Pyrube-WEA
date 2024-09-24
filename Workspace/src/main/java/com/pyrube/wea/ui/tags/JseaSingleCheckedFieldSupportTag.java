@@ -199,14 +199,23 @@ public abstract class JseaSingleCheckedFieldSupportTag extends FieldTag {
 			tagWriter.endTag();
 		}
 	}
-	
+
+	@Override
+	protected String resolveStylesheet() throws JspException {
+		String stylesheet = super.resolveStylesheet();
+		StringBuffer buf  = new StringBuffer();
+		if (!Strings.isEmpty(stylesheet)) { buf.append(stylesheet + " "); }
+		if (this.isOptionSelected(this.value)) { buf.append("checked "); }
+		return(buf.toString().trim());
+	}
+
 	@Override
 	protected String resolveCssClass() throws JspException {
-		String cssClass = super.resolveCssClass();
+		String cssClass  = super.resolveCssClass();
 		StringBuffer buf = new StringBuffer();
 		if (!Strings.isEmpty(cssClass)) { buf.append(cssClass + " "); }
 		if (this.isOptionSelected(this.value)) { buf.append("checked "); }
-		return buf.toString().trim();
+		return(buf.toString().trim());
 	}
 
 	@Override

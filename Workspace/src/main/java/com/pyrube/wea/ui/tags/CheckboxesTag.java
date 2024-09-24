@@ -49,6 +49,9 @@ public class CheckboxesTag extends JseaMultiCheckedFieldSupportTag {
 	}
 
 	@Override
+	public String getSingleFieldCssClass() { return("checkbox"); }
+
+	@Override
 	protected void writeOptionalAttributes(TagWriter tagWriter) throws JspException {
 		super.writeOptionalAttributes(tagWriter);
 		

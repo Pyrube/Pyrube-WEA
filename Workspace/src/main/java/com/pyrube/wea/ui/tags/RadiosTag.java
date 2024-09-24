@@ -46,6 +46,9 @@ public class RadiosTag extends JseaMultiCheckedFieldSupportTag {
 	}
 
 	@Override
+	public String getSingleFieldCssClass() { return("radio"); }
+
+	@Override
 	protected void writeOptionalAttributes(TagWriter tagWriter) throws JspException {
 		super.writeOptionalAttributes(tagWriter);
 		tagWriter.writeAttribute(TagConstants.JSEA_ATTR_FIELD_TYPE, "fields.radios");
