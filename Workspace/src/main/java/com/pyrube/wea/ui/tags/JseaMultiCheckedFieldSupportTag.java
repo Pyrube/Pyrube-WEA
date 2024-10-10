@@ -30,6 +30,7 @@ import org.springframework.web.servlet.tags.form.TagWriter;
 
 import com.pyrube.one.lang.Strings;
 import com.pyrube.wea.ui.tags.core.WeaSelectedValueComparator;
+import com.pyrube.wea.util.Weas;
 
 /**
  * JSEA base class to provide common methods for implementing databinding-aware JSP tags for rendering multiple
@@ -52,11 +53,6 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 	private static final String UL_TAG = "ul";
 
 	/**
-	 * The HTML '{@code li}' tag.
-	 */
-	private static final String LI_TAG = "li";
-
-	/**
 	 * The HTML '{@code span}' tag.
 	 */
 	private static final String SPAN_TAG = "span";
@@ -64,12 +60,10 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 	/**
 	 * The HTML '{@code label}' tag.
 	 */
-	private static final String LABEL_TAG = "label";
 
 	/**
 	 * The HTML '{@code input}' tag.
 	 */
-	private static final String FIELD_TAG = "input";
 	
 	/**
 	 * The {@link java.util.Collection}, {@link java.util.Map} or array of objects
@@ -225,8 +219,10 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 	public void setOnCheck(String onCheck) {
 		this.onCheck = onCheck;
 	}
-	
+
 	public abstract String getJseaAttrSingleFieldOptions();
+
+	public abstract String getSingleFieldCssClass();
 
 	@Override
 	public String getRootPath() throws JspException {
@@ -274,11 +270,14 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 	
 	@Override
 	protected void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException {
-		String value = getDisplayString(getBoundValue(), getPropertyEditor());
-		jsob.appendJseaOption("value", value)
+		jsob.appendJseaOption("value", this.resolveJseaValue())
 			.appendJseaOption(TagConstants.JSEA_OPTION_NAME, this.getName())
 			.appendJseaOption(TagConstants.JSEA_OPTION_I18N_PREFIX, this.getI18nPrefix())
 			.appendJseaOption(TagConstants.JSEA_EVENT_ONCHECK, this.onCheck, JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
+		Object items = getItems();
+		if (items instanceof String) {
+			jsob.appendJseaOption("singleItems", items, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		}
 	}
 
 	/**
@@ -289,51 +288,47 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 	protected void writeElementTags(TagWriter tagWriter) throws JspException {
 		Object items = getItems();
 		if (items != null) {
-			Object itemsObject = (items instanceof String ? evaluate("items", items) : items);
-	
-			String itemValue = getItemValue();
-			String itemLabel = getItemLabel();
-			String valueProperty =
-					(itemValue != null ? ObjectUtils.getDisplayString(evaluate("itemValue", itemValue)) : null);
-			String labelProperty =
-					(itemLabel != null ? ObjectUtils.getDisplayString(evaluate("itemLabel", itemLabel)) : null);
-	
-			Class<?> boundType = getBindStatus().getValueType();
-			if (itemsObject == null && boundType != null && boundType.isEnum()) {
-				itemsObject = boundType.getEnumConstants();
-			}
-	
-			if (itemsObject == null) {
-				throw new IllegalArgumentException("Attribute 'items' is required and must be a Collection, an Array or a Map");
-			}
-	
-			if (itemsObject.getClass().isArray()) {
-				Object[] itemsArray = (Object[]) itemsObject;
-				for (int i = 0; i < itemsArray.length; i++) {
-					Object item = itemsArray[i];
-					writeObjectEntry(tagWriter, valueProperty, labelProperty, item, i);
+			Object itemsObject = evaluate("items", items);
+			if (!(itemsObject instanceof String)) {
+				String itemValue = getItemValue();
+				String itemLabel = getItemLabel();
+				String valueProperty =
+						(itemValue != null ? ObjectUtils.getDisplayString(evaluate("itemValue", itemValue)) : null);
+				String labelProperty =
+						(itemLabel != null ? ObjectUtils.getDisplayString(evaluate("itemLabel", itemLabel)) : null);
+		
+				Class<?> boundType = getBindStatus().getValueType();
+				if (itemsObject == null && boundType != null && boundType.isEnum()) {
+					itemsObject = boundType.getEnumConstants();
 				}
-			}
-			else if (itemsObject instanceof Collection) {
-				final Collection<?> optionCollection = (Collection<?>) itemsObject;
-				int itemIndex = 0;
-				for (Iterator<?> it = optionCollection.iterator(); it.hasNext(); itemIndex++) {
-					Object item = it.next();
-					writeObjectEntry(tagWriter, valueProperty, labelProperty, item, itemIndex);
+		
+				if (itemsObject == null) {
+					throw new IllegalArgumentException("Attribute 'items' is required and must be a Collection, an Array or a Map");
 				}
-			}
-			else if (itemsObject instanceof Map) {
-				final Map<?, ?> optionMap = (Map<?, ?>) itemsObject;
-				int itemIndex = 0;
-				for (@SuppressWarnings("rawtypes")
-				Iterator it = optionMap.entrySet().iterator(); it.hasNext(); itemIndex++) {
-					@SuppressWarnings("rawtypes")
-					Map.Entry entry = (Map.Entry) it.next();
-					writeMapEntry(tagWriter, valueProperty, labelProperty, entry, itemIndex);
+		
+				if (itemsObject.getClass().isArray()) {
+					Object[] itemsArray = (Object[]) itemsObject;
+					for (int i = 0; i < itemsArray.length; i++) {
+						Object item = itemsArray[i];
+						writeObjectEntry(tagWriter, valueProperty, labelProperty, item, i);
+					}
+				} else if (itemsObject instanceof Collection) {
+					final Collection<?> optionCollection = (Collection<?>) itemsObject;
+					int itemIndex = 0;
+					for (Iterator<?> it = optionCollection.iterator(); it.hasNext(); itemIndex++) {
+						Object item = it.next();
+						writeObjectEntry(tagWriter, valueProperty, labelProperty, item, itemIndex);
+					}
+				} else if (itemsObject instanceof Map) {
+					final Map<?, ?> optionMap = (Map<?, ?>) itemsObject;
+					int itemIndex = 0;
+					for (@SuppressWarnings("rawtypes")
+					Iterator it = optionMap.entrySet().iterator(); it.hasNext(); itemIndex++) {
+						@SuppressWarnings("rawtypes")
+						Map.Entry entry = (Map.Entry) it.next();
+						writeMapEntry(tagWriter, valueProperty, labelProperty, entry, itemIndex);
+					}
 				}
-			}
-			else {
-				throw new IllegalArgumentException("Attribute 'items' must be an array, a Collection or a Map");
 			}
 		}
 	}
@@ -345,14 +340,12 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 		Object renderValue;
 		if (valueProperty != null) {
 			renderValue = wrapper.getPropertyValue(valueProperty);
-		}
-		else if (item instanceof Enum) {
+		} else if (item instanceof Enum) {
 			renderValue = ((Enum<?>) item).name();
-		}
-		else {
+		} else {
 			renderValue = item;
 		}
-		Object renderLabel = (labelProperty != null ? wrapper.getPropertyValue(labelProperty) : item);
+		Object renderLabel = (labelProperty != null ? wrapper.getPropertyValue(labelProperty) : null);
 		writeElementTag(tagWriter, item, renderValue, renderLabel, itemIndex);
 	}
 
@@ -372,33 +365,17 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 
 	private void writeElementTag(TagWriter tagWriter, Object item, Object value, Object label, int itemIndex)
 			throws JspException {
-		tagWriter.startTag(LI_TAG);
-		tagWriter.startTag(SPAN_TAG);
-		String id = resolveId();
-		//writeOptionalAttribute(tagWriter, "id", id);
-		super.writeOptionalAttributes(tagWriter);
-		tagWriter.writeAttribute(this.getJseaAttrSingleFieldOptions(), Strings.EMPTY);
 		String itemValue = convertToDisplayString(value);
+		this.writeElementWrapper(tagWriter, itemValue);
+		// write field
+		tagWriter.startTag(SPAN_TAG);
+		tagWriter.writeAttribute(this.getJseaAttrSingleFieldOptions(), Strings.EMPTY);
+		tagWriter.writeAttribute(TagConstants.HTML_ATTR_CLASS, this.getSingleFieldCssClass() + (isFieldChecked(itemValue) ? " checked" : Strings.EMPTY));
+		// write value
 		tagWriter.writeOptionalAttributeValue(TagConstants.JSEA_ATTR_DATA_VALUE, itemValue);
-		
-		if (isFieldChecked(itemValue)) {			
-			tagWriter.writeAttribute(TagConstants.HTML_ATTR_CLASS, this.getDefaultCssClass() + " checked");
-		} else {
-			tagWriter.writeAttribute(TagConstants.HTML_ATTR_CLASS, this.getDefaultCssClass());
-		}
 		tagWriter.endTag(true);
 		// write label
-		String resolvedLabel = convertToDisplayString(label);
-		String i18nPrefix = convertToDisplayString(this.i18nPrefix);
-		if (resolvedLabel == null && i18nPrefix != null) {
-			resolvedLabel = i18nPrefix + "." + itemValue;
-		}
-		if (resolvedLabel != null) {
-			tagWriter.startTag(LABEL_TAG);
-			tagWriter.writeAttribute("for", id);
-			tagWriter.appendValue(resolvedLabel);
-			tagWriter.endTag();
-		}
+		this.writeElementLabel(tagWriter, label, itemValue);
 		//write input
 		tagWriter.startTag(FIELD_TAG);
 		writeOptionalAttribute(tagWriter, TagConstants.HTML_ATTR_NAME, getName());
@@ -412,6 +389,31 @@ public abstract class JseaMultiCheckedFieldSupportTag extends FieldTag implement
 		
 		tagWriter.endTag();
 		tagWriter.endTag();	
+	}
+
+	private void writeElementWrapper(TagWriter tagWriter, String elemValue) throws JspException {
+		tagWriter.startTag(WRAPPER_TAG);
+		StringBuffer buf = new StringBuffer();
+		buf.append("element ");
+		if (isOptionSelected(elemValue)) buf.append("checked ");
+		String wrapperClass = buf.toString().trim();
+		if (!Strings.isEmpty(wrapperClass)) {
+			tagWriter.writeAttribute(TagConstants.HTML_ATTR_CLASS, wrapperClass);
+		}
+	}
+
+	private void writeElementLabel(TagWriter tagWriter, Object elemLabel, String elemValue) throws JspException {
+		String resolvedLabel = convertToDisplayString(elemLabel);
+		String labelPrefix   = convertToDisplayString(getI18nPrefix());
+		if (Strings.isEmpty(resolvedLabel) && !Strings.isEmpty(labelPrefix)) {
+			resolvedLabel = labelPrefix + "." + elemValue;
+		}
+		if (Strings.isEmpty(resolvedLabel)) resolvedLabel = elemValue;
+		if (resolvedLabel != null) {
+			tagWriter.startTag(LABEL_TAG);
+			tagWriter.appendValue(Weas.localizeMessage(resolvedLabel));
+			tagWriter.endTag();
+		}
 	}
 
 	/**

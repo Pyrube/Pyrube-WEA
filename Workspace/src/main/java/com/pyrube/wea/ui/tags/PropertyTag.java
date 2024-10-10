@@ -176,6 +176,12 @@ public abstract class PropertyTag extends JseaElementSupportTag {
 	 */
 	protected abstract void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException;
 
+	@Override
+	protected String resolveJseaValue() throws JspException {
+		String value = this.getValue();
+		return !Strings.isEmpty(value) ? value : super.resolveJseaValue();
+	}
+
 	/**
 	 * Writes the <code>data-value</code> attribute to the supplied TagWriter.
 	 * Subclasses may choose to override this implementation to control exactly

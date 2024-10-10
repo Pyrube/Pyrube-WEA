@@ -617,13 +617,19 @@ public abstract class FieldTag extends JseaElementSupportTag {
 			.appendJseaOption(TagConstants.JSEA_EVENT_ONEMPTY, this.getOnEmpty(), JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION);
 		return jsob.toString();
 	}
-	
+
 	/**
 	 * Subclass can override this method to append some other option for specific requirements.
 	 * @param jsob
 	 */
 	protected abstract void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException;
-	
+
+	@Override
+	protected String resolveJseaValue() throws JspException {
+		String value = this.getValue();
+		return !Strings.isEmpty(value) ? value : super.resolveJseaValue();
+	}
+
 	/**
 	 * Write JSEA validation type and rules attributes
 	 * @param tagWriter

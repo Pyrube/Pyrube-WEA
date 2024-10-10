@@ -381,9 +381,8 @@ public class FalefieldTag extends TextfieldTag implements OptionAware {
 		this.setTriggerId(FALEFIELD_TRIGGER_PREFIX + UUID.randomUUID().toString());
 		this.setTrigger2Id(FALEFIELD_TRIGGER2_PREFIX + UUID.randomUUID().toString());
 		this.setDragpanelId(FALEFIELD_DRAGPANEL_PREFIX + UUID.randomUUID().toString());
-		String value = (Strings.isEmpty(this.getPath())) ? Strings.EMPTY : getDisplayString(getBoundValue(), getPropertyEditor());
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_NAME, this.getName())
-			.appendJseaOption("value", value)
+			.appendJseaOption("value", this.resolveJseaValue())
 			.appendJseaOption(TagConstants.JSEA_OPTION_URL, this.getUrl())
 			.appendJseaOption("depends", this.getDepends())
 			.appendJseaOption("itemLabel", this.getItemLabel())
@@ -393,9 +392,9 @@ public class FalefieldTag extends TextfieldTag implements OptionAware {
 			.appendJseaOption("optiononly", this.isOptiononly())
 			.appendJseaOption("manualonly", this.isManualonly())
 			.appendJseaOption("autocomplete", this.getAutocomplete())
-			.appendJseaOption("onChange", this.getOnChange())
-			.appendJseaOption("triggerId", this.getTriggerId())
-			.appendJseaOption("trigger2Id", this.getTrigger2Id())
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONCHANGE, this.getOnChange())
+			.appendJseaOption(TagConstants.JSEA_OPTION_TRIGGER_ID, this.getTriggerId())
+			.appendJseaOption(TagConstants.JSEA_OPTION_TRIGGER2_ID, this.getTrigger2Id())
 			.appendJseaOption("panelId", this.getDragpanelId());
 		Object items = getItems();
 		if (items == null) jsob.appendJseaOption("autoincrement", Boolean.TRUE.booleanValue());

@@ -396,9 +396,8 @@ public class SelefieldTag extends TextfieldTag implements OptionAware {
 	protected void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException {
 		this.setTriggerId(SELECTFIELD_TRIGGER_PREFIX + UUID.randomUUID().toString());
 		this.setDroppanelId(SELECTFIELD_DROPPANEL_PREFIX + UUID.randomUUID().toString());
-		String value = (Strings.isEmpty(this.getPath())) ? Strings.EMPTY : getDisplayString(getBoundValue(), getPropertyEditor());
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_NAME, this.getName())
-			.appendJseaOption("value", value)
+			.appendJseaOption("value", this.resolveJseaValue())
 			.appendJseaOption(TagConstants.JSEA_OPTION_URL, this.getUrl())
 			.appendJseaOption("depends", this.getDepends())
 			.appendJseaOption("itemLabel", this.getItemLabel())
@@ -409,8 +408,8 @@ public class SelefieldTag extends TextfieldTag implements OptionAware {
 			.appendJseaOption("optiononly", this.isOptiononly())
 			.appendJseaOption("manualonly", this.isManualonly())
 			.appendJseaOption("autocomplete", this.getAutocomplete())
-			.appendJseaOption("onChange", this.onChange, JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
-			.appendJseaOption("triggerId", this.getTriggerId())
+			.appendJseaOption(TagConstants.JSEA_EVENT_ONCHANGE, this.onChange, JseaOptionsBuilder.JSEA_OPTION_TYPE_FUNCTION)
+			.appendJseaOption(TagConstants.JSEA_OPTION_TRIGGER_ID, this.getTriggerId())
 			.appendJseaOption("panelId", this.getDroppanelId());
 		Object items = getItems();
 		if (items instanceof String) {
