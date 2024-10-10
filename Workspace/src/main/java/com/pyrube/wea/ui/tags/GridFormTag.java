@@ -93,6 +93,7 @@ public class GridFormTag extends JseaFormSupportTag {
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_RS_PROP, getRsProp())
 			.appendJseaOption(TagConstants.JSEA_OPTION_FILTERABLE, isFilterable());
 		appendExtraOptions(jsob);
+		appendJseaEventOptions(jsob);
 		return jsob.toString();
 	}
 	

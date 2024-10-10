@@ -126,7 +126,6 @@ public interface TagConstants {
 	public static final String JSEA_OPTION_CONFIRM = "confirm";
 	public static final String JSEA_OPTION_REASON = "reason";
 	public static final String JSEA_OPTION_YESNO = "yesno";
-	public static final String JSEA_OPTION_METHOD = "method";
 	public static final String JSEA_OPTION_CALLBACK = "callback";
 	public static final String JSEA_OPTION_DISABLED = "disabled";
 	public static final String JSEA_OPTION_RENDERS = "renders";
@@ -180,13 +179,15 @@ public interface TagConstants {
 	/**
 	 * JSEA Event constants
 	 */
-	public static final String JSEA_EVENT_ONSELECT = "onSelect";
+	public static final String JSEA_OPTION_EVENT = "event";
+	public static final String JSEA_EVENT_ONSELECT   = "onSelect";
 	public static final String JSEA_EVENT_ONDESELECT = "onDeselect";
-	public static final String JSEA_EVENT_ONWRITE = "onWrite";
+	public static final String JSEA_EVENT_ONWRITE    = "onWrite";
 	public static final String JSEA_EVENT_ONACTIVATE = "onActivate";
 	public static final String JSEA_EVENT_ONDEACTIVATE = "onDeactivate";
-	public static final String JSEA_EVENT_ONCHOOSE = "onChoose";
-	public static final String JSEA_EVENT_ONCHECK = "onCheck";
-	public static final String JSEA_EVENT_ONEMPTY = "onEmpty";
+	public static final String JSEA_EVENT_ONCHOOSE  = "onChoose";
+	public static final String JSEA_EVENT_ONCHANGE  = "onChange";
+	public static final String JSEA_EVENT_ONCHECK   = "onCheck";
+	public static final String JSEA_EVENT_ONEMPTY   = "onEmpty";
 	public static final String JSEA_EVENT_ONSUCCESS = "onSuccess";
 }

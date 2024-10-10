@@ -104,6 +104,11 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	private String stylesheet;
 
 	/**
+	 * JSEA Event Attribute. the default/specified event to be triggered.
+	 */
+	private String event;
+
+	/**
 	 * JSEA attribute name for JSEA init options
 	 */
 	private String jseaAttrOptions = null;
@@ -112,11 +117,6 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 * JSEA attribute name for JSEA validation rules
 	 */
 	private String jseaAttrValidRules = TagConstants.JSEA_ATTR_VALID_RULES;
-
-	/**
-	 * JSEA Event Attribute. Method invoked when the default/specified event is triggered.
-	 */
-	private String method;
 
 	/**
 	 * @return the tagWriter
@@ -251,6 +251,20 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
+	 * @return the event
+	 */
+	public String getEvent() {
+		return event;
+	}
+
+	/**
+	 * @param event the event to set
+	 */
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
+	/**
 	 * @return the jseaAttrOptions
 	 */
 	public String getJseaAttrOptions() {
@@ -276,20 +290,6 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 */
 	public void setJseaAttrValidRules(String jseaAttrValidRules) {
 		this.jseaAttrValidRules = jseaAttrValidRules;
-	}
-
-	/**
-	 * @return the method
-	 */
-	public String getMethod() {
-		return method;
-	}
-
-	/**
-	 * @param method the method to set
-	 */
-	public void setMethod(String method) {
-		this.method = method;
 	}
 
 	/**
@@ -463,6 +463,15 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	protected void appendJseaOptions(JseaOptionsBuilder jsob) throws JspException {}
 
 	/**
+	 * JSEA Options: value for subclass to override it.
+	 * @return String
+	 * @throws JspException
+	 */
+	protected String resolveJseaValue() throws JspException {
+		return (getDisplayString(getBoundValue(), getPropertyEditor()));
+	}
+
+	/**
 	 * appends the event option set of JSEA Options to the given JseaOptionsBuilder.
 	 * further abstract sub-classes should override this method to add in any additional 
 	 * default options but must remember to call the super method.
@@ -472,7 +481,8 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 * @throws JspException
 	 */
 	protected void appendJseaEventOptions(JseaOptionsBuilder jsob) throws JspException {
-		jsob.appendJseaOption(TagConstants.JSEA_OPTION_METHOD, getMethod(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+		String event = this.getEvent();
+		if (!Strings.isEmpty(event)) jsob.appendJseaOption(TagConstants.JSEA_OPTION_EVENT, event, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 	}
 
 	/**

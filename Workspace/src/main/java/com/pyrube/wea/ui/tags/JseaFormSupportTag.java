@@ -70,7 +70,7 @@ public abstract class JseaFormSupportTag extends FormTag {
 	private String mode;
 
 	/**
-	 * more operations in the nested form
+	 * more operations (not default operations or for the nested form)
 	 */
 	private String operations;
 
@@ -82,8 +82,13 @@ public abstract class JseaFormSupportTag extends FormTag {
 	private boolean nested;
 
 	private boolean metaless;
-	
+
 	private boolean backable = false;
+
+	/**
+	 * JSEA Event Attribute. the default/specified event to be triggered.
+	 */
+	private String event;
 
 	private String script;
 
@@ -270,6 +275,20 @@ public abstract class JseaFormSupportTag extends FormTag {
 	}
 
 	/**
+	 * @return the event
+	 */
+	public String getEvent() {
+		return event;
+	}
+
+	/**
+	 * @param event the event to set
+	 */
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
+	/**
 	 * @return the script
 	 */
 	public String getScript() {
@@ -378,6 +397,20 @@ public abstract class JseaFormSupportTag extends FormTag {
 	 * @param jsob
 	 */
 	protected abstract void appendExtraOptions(JseaOptionsBuilder jsob) throws JspException;
+
+	/**
+	 * appends the event option set of JSEA Options to the given JseaOptionsBuilder.
+	 * further abstract sub-classes should override this method to add in any additional 
+	 * default options but must remember to call the super method.
+	 * concrete sub-classes should call this method when/if they want to render event
+	 * options.
+	 * @param jsob JseaOptionsBuilder
+	 * @throws JspException
+	 */
+	protected void appendJseaEventOptions(JseaOptionsBuilder jsob) throws JspException {
+		String event = this.getEvent();
+		if (!Strings.isEmpty(event)) jsob.appendJseaOption(TagConstants.JSEA_OPTION_EVENT, event, JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
+	}
 
 	/**
 	 * Concrete subclass could implement this method to supply the corresponding form stylesheet

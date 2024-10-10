@@ -215,6 +215,7 @@ public class DetailFormTag extends JseaFormSupportTag {
 			.appendJseaOption(TagConstants.JSEA_OPTION_VALIDATABLE, isValidatable())
 			.appendJseaOption(TagConstants.JSEA_OPTION_MODIFIABLE, isModifiable());
 		appendExtraOptions(jsob);
+		appendJseaEventOptions(jsob);
 		return jsob.toString();
 	}
 	

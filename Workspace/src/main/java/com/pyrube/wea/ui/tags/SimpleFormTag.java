@@ -71,6 +71,7 @@ public class SimpleFormTag extends JseaFormSupportTag {
 		jsob.appendJseaOption(TagConstants.JSEA_OPTION_OPERATION, getOperation())
 			.appendJseaOption(TagConstants.JSEA_OPTION_VALIDATABLE, isValidatable());
 		appendExtraOptions(jsob);
+		appendJseaEventOptions(jsob);
 		return jsob.toString();
 	}
 	
