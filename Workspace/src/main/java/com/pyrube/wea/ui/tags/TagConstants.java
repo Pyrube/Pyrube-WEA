@@ -126,8 +126,9 @@ public interface TagConstants {
 	public static final String JSEA_OPTION_CONFIRM = "confirm";
 	public static final String JSEA_OPTION_REASON = "reason";
 	public static final String JSEA_OPTION_YESNO = "yesno";
-	public static final String JSEA_OPTION_CALLBACK = "callback";
-	public static final String JSEA_OPTION_DISABLED = "disabled";
+	public static final String JSEA_OPTION_PERMANENT = "permanent";
+	public static final String JSEA_OPTION_CALLBACK  = "callback";
+	public static final String JSEA_OPTION_DISABLED  = "disabled";
 	public static final String JSEA_OPTION_RENDERS = "renders";
 	public static final String JSEA_OPTION_HELP = "help";
 	public static final String JSEA_OPTION_CURRENT = "current";

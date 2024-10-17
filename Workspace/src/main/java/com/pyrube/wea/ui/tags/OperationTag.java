@@ -39,19 +39,19 @@ public class OperationTag extends JseaActionElementTag {
 	 */
 	private static final long serialVersionUID = 8796434762753623023L;
 
-	private String permanent;
+	private boolean permanent;
 
 	/**
 	 * @return the permanent
 	 */
-	public String getPermanent() {
+	public boolean isPermanent() {
 		return permanent;
 	}
 
 	/**
 	 * @param permanent the permanent to set
 	 */
-	public void setPermanent(String permanent) {
+	public void setPermanent(boolean permanent) {
 		this.permanent = permanent;
 	}
 
@@ -82,6 +82,12 @@ public class OperationTag extends JseaActionElementTag {
 			operationAwareTag.addOperation(operation);
 		}
 		return EVAL_PAGE;
+	}
+
+	@Override
+	protected void appendJseaOptions(JseaOptionsBuilder jsob) throws JspException {
+		super.appendJseaOptions(jsob);
+		if (isPermanent()) jsob.appendJseaOption(TagConstants.JSEA_OPTION_PERMANENT, isPermanent());
 	}
 
 	/**
