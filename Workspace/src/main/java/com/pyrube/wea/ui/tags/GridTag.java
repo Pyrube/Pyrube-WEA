@@ -60,7 +60,6 @@ public class GridTag extends JseaElementSupportTag {
 	private String pagebar = (String) Apps.config.property("APP_PAGEBAR");
 	private int pageSize = SearchCriteria.DEFAULT_PAGE_SIZE;
 	
-	private String nonnullCols;
 	private String uniqueIndex;
 	
 	private String onWrite;
@@ -272,20 +271,6 @@ public class GridTag extends JseaElementSupportTag {
 	}
 
 	/**
-	 * @return the nonnullCols
-	 */
-	public String getNonnullCols() {
-		return nonnullCols;
-	}
-
-	/**
-	 * @param nonnullCols the nonnullCols to set
-	 */
-	public void setNonnullCols(String nonnullCols) {
-		this.nonnullCols = nonnullCols;
-	}
-
-	/**
 	 * @return the uniqueIndex
 	 */
 	public String getUniqueIndex() {
@@ -408,8 +393,8 @@ public class GridTag extends JseaElementSupportTag {
 	@Override
 	protected String resolveJseaValidRules() {
 		JseaOptionsBuilder jsob = JseaOptionsBuilder.newBuilder();
-		jsob.appendJseaOption(TagConstants.JSEA_VALID_RULE_NONNULL_COLS, getNonnullCols(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT)
-			.appendJseaOption(TagConstants.JSEA_VALID_RULE_UNIQUE_INDEX, getUniqueIndex());
+		jsob.appendJseaOption(TagConstants.JSEA_VALID_RULE_REQUIRED, isRequired())
+			.appendJseaOption(TagConstants.JSEA_VALID_RULE_UNIQUE_INDEX, getUniqueIndex(), JseaOptionsBuilder.JSEA_OPTION_TYPE_OBJECT);
 		return jsob.toString();
 	}
 
