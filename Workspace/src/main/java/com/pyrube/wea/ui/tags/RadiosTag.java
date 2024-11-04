@@ -18,8 +18,6 @@ package com.pyrube.wea.ui.tags;
 
 import javax.servlet.jsp.JspException;
 
-import org.springframework.web.servlet.tags.form.TagWriter;
-
 /**
  * The <code>Radios</code> tag renders multiple HTML 'li' tags with 
  * respective invisible HTML 'input' tag with type 'radio'.
@@ -47,12 +45,6 @@ public class RadiosTag extends JseaMultiCheckedFieldSupportTag {
 
 	@Override
 	public String getSingleFieldCssClass() { return("radio"); }
-
-	@Override
-	protected void writeOptionalAttributes(TagWriter tagWriter) throws JspException {
-		super.writeOptionalAttributes(tagWriter);
-		tagWriter.writeAttribute(TagConstants.JSEA_ATTR_FIELD_TYPE, "fields.radios");
-	}
 
 	@Override
 	protected String resolveFieldType() throws JspException { return "radio"; }

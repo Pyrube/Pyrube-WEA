@@ -18,8 +18,6 @@ package com.pyrube.wea.ui.tags;
 
 import javax.servlet.jsp.JspException;
 
-import org.springframework.web.servlet.tags.form.TagWriter;
-
 /**
  * The <code>Checkboxes</code> tag renders multiple HTML 'li' tags with 
  * respective invisible HTML 'input' tag with type 'checkbox'.
@@ -50,13 +48,6 @@ public class CheckboxesTag extends JseaMultiCheckedFieldSupportTag {
 
 	@Override
 	public String getSingleFieldCssClass() { return("checkbox"); }
-
-	@Override
-	protected void writeOptionalAttributes(TagWriter tagWriter) throws JspException {
-		super.writeOptionalAttributes(tagWriter);
-		
-		tagWriter.writeAttribute(TagConstants.JSEA_ATTR_FIELD_TYPE, "fields.checkboxes");
-	}
 
 	@Override
 	protected String resolveFieldType() throws JspException { return "checkbox"; }
