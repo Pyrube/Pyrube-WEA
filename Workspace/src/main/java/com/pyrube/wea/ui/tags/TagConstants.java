@@ -51,7 +51,6 @@ public interface TagConstants {
 	public static final String JSEA_ATTR_BASENAME    = "jsea-basename";
 	public static final String JSEA_ATTR_FUNCNAME    = "jsea-funcname";
 	public static final String JSEA_ATTR_FORM_TYPE   = "jsea-form-type";
-	public static final String JSEA_ATTR_FIELD_TYPE  = "jsea-field-type";
 	public static final String JSEA_ATTR_VALID_TYPE  = "jsea-valid-type";
 	public static final String JSEA_ATTR_VALID_RULES = "jsea-valid-rules";
 	public static final String JSEA_ATTR_COLUMN_OPERATIONS = "jsea-col-operations";
@@ -168,7 +167,6 @@ public interface TagConstants {
 	/**
 	 * JSEA Validation Rule Constants
 	 */
-	public static final String JSEA_VALID_RULE_NONNULL_COLS = "nonnullCols";
 	public static final String JSEA_VALID_RULE_UNIQUE_INDEX = "uniqueIndex";
 	public static final String JSEA_VALID_RULE_REQUIRED = "required";
 	public static final String JSEA_VALID_RULE_MINLENGTH = "minLength";
