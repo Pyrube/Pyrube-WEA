@@ -627,7 +627,8 @@ public abstract class FieldTag extends JseaElementSupportTag {
 	@Override
 	protected String resolveJseaValue() throws JspException {
 		String value = this.getValue();
-		return !Strings.isEmpty(value) ? value : super.resolveJseaValue();
+		return !Strings.isEmpty(value) ? value : 
+			(!Strings.isEmpty(this.getPath()) ? super.resolveJseaValue() : Strings.EMPTY);
 	}
 
 	/**
