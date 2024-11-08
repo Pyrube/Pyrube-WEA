@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_1.xsd"
+  version="2.1">
+  <description>WEA-ONE JSP tag library</description>
+  <tlib-version>1.0</tlib-version>
+  <short-name>wone</short-name>
+  <uri>http://www.pyrube.com/tags/wea-one1.0/</uri>
+  <tag>
+    <description>Output the localized message for a given code and arguments</description>
+    <name>message</name>
+    <tag-class>com.pyrube.wea.ui.tags.MessageTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <name>code</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>Set optional message arguments for this tag, as a
+        (comma-)delimited String (each String argument can contain JSP EL),
+        an Object array (used as argument array), or a single Object (used
+        as single argument).</description>
+      <name>arguments</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>The separator character to be used for splitting the
+      arguments string value; defaults to a 'comma' (',').</description>
+      <name>argumentSeparator</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>Set HTML escaping for this tag, as boolean value.
+      Overrides the default HTML escaping setting for the current page.</description>
+      <name>htmlEscaping</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <description>Provides an operation for its parent tag.</description>
+    <name>operation</name>
+    <tag-class>com.pyrube.wea.ui.tags.OperationTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+      <description>JSEA JSON Key. The operation name</description>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Standard Option</description>
+      <name>url</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Standard Option</description>
+      <name>mode</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Standard Option</description>
+      <name>confirm</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Optional Option. User can(not) access the JSEA row operation w/(w/o) permission</description>
+      <name>access</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Optional Option. Define how to make the JSEA row operation inactive/disabled</description>
+      <name>inactive</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Optional Option. Define how to make the JSEA row operation hidden</description>
+      <name>hidden</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Optional Option. Define how to make the JSEA row operation invisible</description>
+      <name>invisible</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Optional Option. Define how to make the JSEA row operation gone</description>
+      <name>gone</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>JSEA Optional Option. Indicate whether the JSEA row is operated permanently like 'remove' operation, if false, to change row status to 'D'; or to directly delete row</description>
+      <name>permanent</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>boolean</type>
+    </attribute>
+  </tag>
+	<tag>
+		<description>Provides an option for its parent tag</description>
+		<name>option</name>
+		<tag-class>com.pyrube.wea.ui.tags.OptionTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<description>Option item value</description>
+			<name>value</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
+			<description>Option item label. I18n message key.</description>
+			<name>label</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+</taglib>
