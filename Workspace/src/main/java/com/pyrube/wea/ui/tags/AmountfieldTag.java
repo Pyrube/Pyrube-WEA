@@ -93,7 +93,7 @@ public class AmountfieldTag extends TextfieldTag {
 				Map<String, Currency> mapCurrencies = (Map<String, Currency>) CacheManager.applicationGet("mapCurrencies");
 				if (mapCurrencies != null) {
 					Currency currency = mapCurrencies.get(ccyCode);
-					if (currency != null) scale = currency.getScale();
+					if (currency != null) scale = currency.getPrecision();
 				}
 				fmtName = fmtName.substring(0, idx);
 			}
