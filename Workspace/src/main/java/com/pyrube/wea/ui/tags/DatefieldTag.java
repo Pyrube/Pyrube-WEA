@@ -54,11 +54,6 @@ public class DatefieldTag extends TextfieldTag {
 	private String onPick;
 	
 	/**
-	 * Whether convert datetime (in GMT:00) to local timestamp.
-	 */
-	protected boolean local = false;
-	
-	/**
 	 * random trigger id
 	 */
 	private String triggerId;
@@ -131,20 +126,6 @@ public class DatefieldTag extends TextfieldTag {
 	}
 
 	/**
-	 * @return the local
-	 */
-	public boolean isLocal() {
-		return local;
-	}
-
-	/**
-	 * @param local the local to set
-	 */
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
-	
-	/**
 	 * @return the triggerId
 	 */
 	public String getTriggerId() {
@@ -216,7 +197,7 @@ public class DatefieldTag extends TextfieldTag {
 		Format format = null;
 		if (unformated instanceof Date) {
 			TimeZone localTimeZone = null;
-			if (local) {
+			if (isLocal()) {
 				localTimeZone = WebContextHolder.getWebContext().getTimezone();
 			}
 			format = FormatManager.dateFormatOf(localeCode, fmtNameOrPattern, localTimeZone);

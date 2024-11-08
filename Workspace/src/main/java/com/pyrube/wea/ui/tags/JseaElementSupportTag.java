@@ -18,7 +18,8 @@ package com.pyrube.wea.ui.tags;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.text.Format;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -30,8 +31,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.tags.form.AbstractHtmlElementTag;
 import org.springframework.web.servlet.tags.form.TagWriter;
 
-import com.pyrube.one.app.i18n.format.FormatManager;
+import com.pyrube.one.app.Apps;
 import com.pyrube.one.lang.Strings;
+import com.pyrube.wea.context.WebContextHolder;
 import com.pyrube.wea.util.Weas;
 
 /**
@@ -92,6 +94,11 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 * format
 	 */
 	private String format;
+	
+	/**
+	 * Whether convert datetime (in GMT:00) to local timestamp.
+	 */
+	private boolean local = false;
 
 	/**
 	 * class 'disabled' and attribute 'disabled' will be added if it is true
@@ -207,7 +214,6 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 		this.required = required;
 	}
 
-
 	/**
 	 * @return the format
 	 */
@@ -220,6 +226,20 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 */
 	public void setFormat(String format) {
 		this.format = format;
+	}
+
+	/**
+	 * @return the local
+	 */
+	public boolean isLocal() {
+		return local;
+	}
+
+	/**
+	 * @param local the local to set
+	 */
+	public void setLocal(boolean local) {
+		this.local = local;
 	}
 
 	/**
@@ -550,7 +570,7 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	}
 
 	/**
-	 * cConcrete subclass could implement this method to format the corresponding value
+	 * Concrete subclass could implement this method to format the corresponding value
 	 * @param localeCode
 	 * @param nameOrPattern
 	 * @param unformated
@@ -558,26 +578,27 @@ public abstract class JseaElementSupportTag extends AbstractHtmlElementTag {
 	 * @throws JspException
 	 */
 	protected String formatValue(String localeCode, String nameOrPattern, Object unformated) throws JspException {
-		if (unformated instanceof String) {
-			return (String) unformated;
-		}
-		Format format = null;
+		if (unformated == null) return(Strings.EMPTY);
+		if (unformated instanceof String) return (String) unformated;
+		if (unformated instanceof Date) {
+			TimeZone localTimeZone = null;
+			if (isLocal()) {
+				localTimeZone = WebContextHolder.getWebContext().getTimezone();
+			}
+			return Apps.a.date.format.of(localeCode, nameOrPattern, localTimeZone).formats((Date) unformated);
+		} else
 		if (unformated instanceof Number) {
 			if (Strings.isEmpty(nameOrPattern)) {
-				if ((unformated instanceof Byte)
-						|| (unformated instanceof Short)
-						|| (unformated instanceof Integer)
-						|| (unformated instanceof Long)
-						|| (unformated instanceof BigInteger)) {
-					format = FormatManager.numberFormatOf(localeCode, FormatManager.NFN_INTEGER);
-				} else {
-					format = FormatManager.numberFormatOf(localeCode, FormatManager.NFN_FLOAT);
-				}
-			} else {
-				format = FormatManager.numberFormatOf(localeCode, nameOrPattern);
+				nameOrPattern = ((unformated instanceof Byte)
+								|| (unformated instanceof Long)
+								|| (unformated instanceof Short)
+								|| (unformated instanceof Integer)
+								|| (unformated instanceof BigInteger)) ?
+					Apps.i18n.format.name.INTEGER : Apps.i18n.format.name.FLOAT;
 			}
+			return Apps.a.number.format.of(localeCode, nameOrPattern).formats((Number) unformated);
 		}
-		return format != null ? format.format(unformated) : unformated != null ? (String) unformated : Strings.EMPTY;
+		return unformated.toString();
 	}
 
 }

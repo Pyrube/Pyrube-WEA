@@ -39,26 +39,7 @@ public class DatepropTag extends TextpropTag {
 	 * serial version uid
 	 */
 	private static final long serialVersionUID = 5162150178655959706L;
-	
-	/**
-	 * Whether convert datetime (in GMT:00) to local timestamp.
-	 */
-	protected boolean local = false;
 
-	/**
-	 * @return the local
-	 */
-	public boolean isLocal() {
-		return local;
-	}
-
-	/**
-	 * @param local the local to set
-	 */
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
-	
 	@Override
 	protected String resolveFormatPattern() throws JspException {
 		String fmtName = this.getFormat();
@@ -73,7 +54,7 @@ public class DatepropTag extends TextpropTag {
 		Format format = null;
 		if (unformated instanceof Date) {
 			TimeZone localTimeZone = null;
-			if (local) {
+			if (isLocal()) {
 				localTimeZone = WebContextHolder.getWebContext().getTimezone();
 			}
 			format = FormatManager.dateFormatOf(localeCode, fmtNameOrPattern, localTimeZone);
