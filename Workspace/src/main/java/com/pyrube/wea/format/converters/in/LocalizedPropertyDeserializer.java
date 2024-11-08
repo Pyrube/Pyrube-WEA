@@ -16,12 +16,17 @@
 
 package com.pyrube.wea.format.converters.in;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.pyrube.one.app.Apps;
 import com.pyrube.one.app.i18n.format.annotations.Converting;
+import com.pyrube.one.app.logging.Logger;
 
 /**
  * WEA Localized Property Deserializer provides functionality for converting localized
@@ -32,17 +37,27 @@ import com.pyrube.one.app.i18n.format.annotations.Converting;
  * @version Dec 01, 2009
  * @since Pyrube-ONE 1.0
  */
-public abstract class LocalizedPropertyDeserializer<T> extends JsonDeserializer<T> implements ContextualDeserializer {
+public abstract class LocalizedPropertyDeserializer<T> extends JsonDeserializer<T> implements ContextualDeserializer, Cloneable {
 
 	/**
-	 * an annotation of <code>Converting</code>
+	 * logger
 	 */
-	protected Converting converting;
+	private static Logger logger = Apps.a.logger.named(LocalizedPropertyDeserializer.class.getName());
+
+	/**
+	 * a set of deserializers: {Converting.format : LocalizedPropertyDeserializer}
+	 */
+	protected static final Map<String, LocalizedPropertyDeserializer<?>> deserializers = new ConcurrentHashMap<>();
 
 	/**
 	 * the raw class of this property
 	 */
 	protected final Class<?> propClass;
+
+	/**
+	 * an annotation of <code>Converting</code>
+	 */
+	protected Converting converting;
 
 	/**
 	 * constructor
@@ -52,11 +67,43 @@ public abstract class LocalizedPropertyDeserializer<T> extends JsonDeserializer<
 		this.propClass = propClass;
 	}
 
+	/**
+	 * @return the converting
+	 */
+	public Converting getConverting() {
+		return converting;
+	}
+
+	/**
+	 * @param converting the converting to set
+	 */
+	public void setConverting(Converting converting) {
+		this.converting = converting;
+	}
+
 	@Override
-	public JsonDeserializer<T> createContextual(DeserializationContext deserializationContext,
+	public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
 			BeanProperty beanProperty) throws JsonMappingException {
-		this.converting = beanProperty.getAnnotation(Converting.class);
+		Converting converting = beanProperty.getAnnotation(Converting.class);
+		if (this.converting != null) {
+			LocalizedPropertyDeserializer<?> deserializer = deserializers.get(converting.format().getName());
+			if (deserializer == null) {
+				try {
+					deserializer = (LocalizedPropertyDeserializer<?>) this.clone();
+					deserializer.setConverting(converting);
+				} catch (CloneNotSupportedException e) {
+					logger.error("Clone '" + this.getClass().getName() + "' is not supported for " + beanProperty.getName(), e);
+				}
+				deserializers.putIfAbsent(converting.format().getName(), deserializer);
+			}
+			return(deserializer);
+		}
 		return this;
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return(super.clone());
 	}
 
 }
